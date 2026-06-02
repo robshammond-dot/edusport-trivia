@@ -1,0 +1,402 @@
+import { useState, useEffect, useRef } from "react";
+
+const CAT = {
+  "Sports World": { bg: "#F97316", icon: "🏆" },
+  "Travel Smart": { bg: "#0EA5E9", icon: "✈️" },
+  "Soft Skills":  { bg: "#10B981", icon: "🤝" },
+};
+
+const TIMER = 20;
+
+const ALL_QUESTIONS = [
+  { cat:"Sports World", q:"In which country was the 2023 Rugby World Cup hosted?", opts:["Japan","Australia","France","England"], ans:2 },
+  { cat:"Sports World", q:"How many times have the Springboks won the Rugby World Cup?", opts:["Two","Three","Four","Five"], ans:2 },
+  { cat:"Sports World", q:"What is the name of the trophy awarded to Rugby World Cup winners?", opts:["The Bledisloe Cup","The Webb Ellis Cup","The Jules Rimet Trophy","The Calcutta Cup"], ans:1 },
+  { cat:"Sports World", q:"Wimbledon is the only Grand Slam played on which surface?", opts:["Clay","Hard court","Grass","Synthetic"], ans:2 },
+  { cat:"Sports World", q:"The Tour de France traditionally finishes on which famous Parisian avenue?", opts:["Rue de Rivoli","Avenue Montaigne","Boulevard Haussmann","Champs-Élysées"], ans:3 },
+  { cat:"Sports World", q:'Which Premier League stadium is known as "The Theatre of Dreams"?', opts:["Anfield","Stamford Bridge","Old Trafford","Emirates Stadium"], ans:2 },
+  { cat:"Sports World", q:"MotoGP is the premier class of which sport?", opts:["Formula One racing","Rally driving","Motorcycle road racing","Speedway"], ans:2 },
+  { cat:"Sports World", q:"Which African country hosted the 2010 FIFA World Cup?", opts:["Egypt","Nigeria","Morocco","South Africa"], ans:3 },
+  { cat:"Sports World", q:"Which of these is NOT a golf Major championship?", opts:["The Masters","The Open Championship","The Ryder Cup","PGA Championship"], ans:2 },
+  { cat:"Sports World", q:"The Rugby World Cup is contested every how many years?", opts:["Two","Three","Four","Five"], ans:2 },
+  { cat:"Sports World", q:"At which venue is Wimbledon tennis played?", opts:["Queen's Club","Flushing Meadows","All England Club","Roland Garros"], ans:2 },
+  { cat:"Sports World", q:"Which city hosts the annual Monaco Formula 1 Grand Prix?", opts:["Nice","Monaco","Cannes","Marseille"], ans:1 },
+  { cat:"Travel Smart", q:"What does ISTAA stand for, of which Edusport is a proud member?", opts:["International Sports Travel Agents Alliance","International Sports Travel Agencies Association","Institute of Sports Tourism and Accommodation in Africa","International Sports and Tourism Advisors Association"], ans:1 },
+  { cat:"Travel Smart", q:"Edusport has been sending South Africans to the Rugby World Cup since which year?", opts:["1999","2003","2007","2011"], ans:2 },
+  { cat:"Travel Smart", q:"Why is it important to secure event tickets through official organisers?", opts:["They are always the cheapest option","It guarantees authenticity and peace of mind","They can be refunded at any time","They include complimentary upgrades"], ans:1 },
+  { cat:"Travel Smart", q:'What is "incentive travel" primarily designed to achieve?', opts:["Offer last-minute discounted group rates","Provide athletes with competition support","Reward and motivate staff or clients aligned with business objectives","Replace traditional conference venues"], ans:2 },
+  { cat:"Travel Smart", q:'A "tailor-made" sports travel package means it is:', opts:["Always more expensive than standard packages","Pre-packaged with no changes allowed","Customised to suit the client's unique travel requirements","Only available to VIP clients"], ans:2 },
+  { cat:"Travel Smart", q:"How many years of experience does Edusport have in sports travel?", opts:["Over 10 years","Over 20 years","Over 25 years","Over 30 years"], ans:3 },
+  { cat:"Travel Smart", q:"A VIP hospitality package at a sporting event typically adds:", opts:["Guaranteed home team victory","Free airfare for the whole family","Priority boarding at all airports","Premium seating, catering and exclusive access"], ans:3 },
+  { cat:"Travel Smart", q:"When advising a first-time sports traveller, what is the most important first step?", opts:["Send them a brochure immediately","Book flights to secure the best price","Recommend the most popular package","Understand their goals, budget and preferred experience"], ans:3 },
+  { cat:"Travel Smart", q:'Which best describes a "group supporter tour"?', opts:["A private charter for VIP guests only","An organised trip for fans travelling together to support their team","A corporate team-building exercise","A travel package for athletes and coaches"], ans:1 },
+  { cat:"Travel Smart", q:"What are the four key components Edusport handles in a sports travel package?", opts:["Flights, meals, sightseeing and tickets","Flights, accommodation, transfers and tickets","Visas, flights, meals and hotels","Accommodation, meals, transfers and insurance"], ans:1 },
+  { cat:"Soft Skills", q:"A client calls to say match tickets haven't arrived three days before travel. What is your first action?", opts:["Tell them to check spam and call back","Transfer them to a manager immediately","Acknowledge their concern, apologise for the stress, and immediately investigate","Advise that tickets are always issued close to the event"], ans:2 },
+  { cat:"Soft Skills", q:'Which best describes "active listening" in a client interaction?', opts:["Talking more than the client to show expertise","Giving full attention, asking clarifying questions and reflecting back","Nodding along while preparing your response","Waiting for the client to finish before responding"], ans:1 },
+  { cat:"Soft Skills", q:"A client requests a package outside your standard offering. What is the best approach?", opts:["Tell them it is not possible","Refer them to a competitor","Offer the closest standard package without asking further questions","Explore whether you can customise something to meet their needs"], ans:3 },
+  { cat:"Soft Skills", q:"You discover you have made an error in a client's hotel booking. What do you do?", opts:["Wait and see if they notice","Fix it quietly and say nothing","Proactively inform the client, apologise and present a solution","Blame the hotel and move on"], ans:2 },
+  { cat:"Soft Skills", q:'What is "upselling" in a travel sales context?', opts:["Overcharging a client without their knowledge","Adding hidden fees to a booking","Selling unnecessary add-ons to increase revenue","Suggesting a higher-value option that genuinely enhances the client's experience"], ans:3 },
+  { cat:"Soft Skills", q:"A client returns from a trip disappointed with one aspect. What is the ideal response?", opts:["Immediately offer a discount on their next booking","Thank them for the feedback, acknowledge their experience and explore improvements","Defend the service and explain why it was acceptable","Forward the complaint to the supplier without following up"], ans:1 },
+  { cat:"Soft Skills", q:"Which is the most effective way to build long-term client relationships?", opts:["Sending promotional emails as often as possible","Offering the lowest prices every time","Consistent, personalised follow-up and genuine interest in their experience","Only contacting clients when there is a new package to sell"], ans:2 },
+  { cat:"Soft Skills", q:"A client calls in a panic because their flight is cancelled on the day of travel. What tone should you use?", opts:["Businesslike and procedural to show professionalism","Apologetic but unable to assist further","Calm, empathetic and solution-focused","Urgent and anxious so they feel understood"], ans:2 },
+  { cat:"Soft Skills", q:'What does "managing client expectations" mean?', opts:["Promising more than you can deliver to win the sale","Clearly communicating what is included, what is not, and what clients can realistically expect","Only sharing good news with clients","Letting clients assume whatever they wish"], ans:1 },
+  { cat:"Soft Skills", q:"A colleague is struggling with a large group booking and you have capacity. What do you do?", opts:["Focus on your own work; it is not your responsibility","Tell your manager your colleague is struggling","Take over the booking without informing your colleague","Offer to assist and collaborate so the client is not affected"], ans:3 },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickQuestions() {
+  const byCat = {};
+  ALL_QUESTIONS.forEach(q => { (byCat[q.cat] = byCat[q.cat] || []).push(q); });
+  const pool = [];
+  Object.values(byCat).forEach(qs => pool.push(...shuffle(qs).slice(0, 5)));
+  return shuffle(pool);
+}
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function Home({ onMode }) {
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ textAlign:"center", marginBottom:40 }}>
+        <div style={{ fontSize:52, marginBottom:6 }}>🏆</div>
+        <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:4, textTransform:"uppercase", marginBottom:4 }}>EDUSPORT TRAVEL</div>
+        <div style={{ color:"#fff", fontSize:34, fontWeight:800, lineHeight:1.1 }}>Trivia Challenge</div>
+        <div style={{ color:"#64748B", fontSize:13, marginTop:6 }}>Sports · Travel · Soft Skills</div>
+      </div>
+      <div style={{ color:"#94A3B8", fontSize:14, marginBottom:20, textAlign:"center" }}>Select a game mode to begin</div>
+      <div style={{ display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:420 }}>
+        {[
+          { mode:"individual", icon:"👤", title:"Individual Play", desc:"Solo or take turns on a shared screen. A countdown timer keeps the pressure on.", col:"#F97316" },
+          { mode:"facilitated", icon:"🎙️", title:"Facilitated Play", desc:"A host reads questions aloud at their own pace. Reveal the answer when ready, then award points manually.", col:"#0EA5E9" },
+        ].map(({ mode, icon, title, desc, col }) => (
+          <ModeCard key={mode} col={col} onClick={() => onMode(mode)}>
+            <div style={{ fontSize:28, marginBottom:8 }}>{icon}</div>
+            <div style={{ color:"#fff", fontSize:17, fontWeight:700, marginBottom:4 }}>{title}</div>
+            <div style={{ color:"rgba(255,255,255,0.6)", fontSize:13, lineHeight:1.5 }}>{desc}</div>
+          </ModeCard>
+        ))}
+      </div>
+      <div style={{ marginTop:36, display:"flex", gap:28, justifyContent:"center" }}>
+        {Object.entries(CAT).map(([c, v]) => (
+          <div key={c} style={{ textAlign:"center" }}>
+            <div style={{ fontSize:22 }}>{v.icon}</div>
+            <div style={{ color:v.bg, fontSize:11, fontWeight:700, marginTop:4 }}>{c}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModeCard({ col, onClick, children }) {
+  const [h, setH] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ background:h?col:"rgba(255,255,255,0.04)", border:`2px solid ${h?col:"rgba(255,255,255,0.09)"}`, borderRadius:16, padding:"20px 22px", cursor:"pointer", textAlign:"left", transition:"all .2s", width:"100%" }}>
+      {children}
+    </button>
+  );
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+function Setup({ mode, onStart, onBack }) {
+  const [players, setPlayers] = useState([]);
+  const [input, setInput] = useState("");
+  const isFac = mode === "facilitated";
+
+  function add() {
+    const n = input.trim();
+    if (!n || players.includes(n) || players.length >= 8) return;
+    setPlayers(p => [...p, n]);
+    setInput("");
+  }
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ width:"100%", maxWidth:460 }}>
+        <button onClick={onBack} style={{ background:"none", border:"none", color:"#64748B", cursor:"pointer", fontSize:14, marginBottom:24, padding:0 }}>← Back</button>
+        <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:3, textTransform:"uppercase", marginBottom:6 }}>
+          {isFac ? "Facilitated Play" : "Individual Play"}
+        </div>
+        <div style={{ color:"#fff", fontSize:26, fontWeight:800, marginBottom:6 }}>Add Players</div>
+        <div style={{ color:"#475569", fontSize:13, marginBottom:28 }}>
+          {isFac
+            ? "Add up to 8 players or teams. The facilitator will award points manually."
+            : "Add 1 or more players. Solo play works too — great for self-practice with the timer."}
+        </div>
+
+        <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && add()}
+            placeholder={isFac ? "Player or team name…" : "Player name…"}
+            style={{ flex:1, background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:10, padding:"12px 14px", color:"#fff", fontSize:14, outline:"none" }} />
+          <button onClick={add} disabled={!input.trim() || players.length >= 8}
+            style={{ background:"#F97316", border:"none", borderRadius:10, padding:"12px 18px", color:"#fff", fontWeight:700, fontSize:14, cursor:"pointer", opacity:(!input.trim()||players.length>=8)?0.35:1 }}>Add</button>
+        </div>
+
+        <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:28, minHeight:50 }}>
+          {players.map((p, i) => (
+            <div key={p} style={{ background:"rgba(255,255,255,0.06)", borderRadius:10, padding:"11px 14px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ background:"#F97316", color:"#fff", borderRadius:"50%", width:26, height:26, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700 }}>{i+1}</div>
+                <span style={{ color:"#e2e8f0", fontSize:14 }}>{p}</span>
+              </div>
+              <button onClick={() => setPlayers(pl => pl.filter(x => x !== p))} style={{ background:"none", border:"none", color:"#475569", cursor:"pointer", fontSize:20, lineHeight:1 }}>×</button>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={() => onStart(players)} disabled={players.length < 1}
+          style={{ width:"100%", background:players.length>=1?"#F97316":"#1E293B", border:"none", borderRadius:12, padding:16, color:players.length>=1?"#fff":"#475569", fontWeight:800, fontSize:16, cursor:players.length>=1?"pointer":"default" }}>
+          Start Game — {players.length} {players.length === 1 ? "player" : "players"}
+        </button>
+
+        <div style={{ marginTop:18, background:"rgba(255,255,255,0.03)", borderRadius:10, padding:"12px 16px", display:"flex", gap:20, justifyContent:"center" }}>
+          {[["Questions","15"],["Pts each","10"],...(!isFac?[["Timer","20s"]]:[]),["Categories","3"]].map(([l,v]) => (
+            <div key={l} style={{ textAlign:"center" }}>
+              <div style={{ color:"#F97316", fontWeight:800, fontSize:18 }}>{v}</div>
+              <div style={{ color:"#475569", fontSize:11 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── INDIVIDUAL GAME ───────────────────────────────────────────────────────────
+function IndividualGame({ players, onEnd }) {
+  const questions = useRef(pickQuestions()).current;
+  const [qi, setQi] = useState(0);
+  const [pi, setPi] = useState(0);
+  const [scores, setScores] = useState(() => Object.fromEntries(players.map(p => [p, 0])));
+  const [sel, setSel] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [t, setT] = useState(TIMER);
+  const timerRef = useRef(null);
+
+  const q = questions[qi];
+  const cat = CAT[q.cat];
+
+  useEffect(() => { setT(TIMER); setSel(null); setRevealed(false); }, [qi]);
+
+  useEffect(() => {
+    if (revealed) return clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setT(p => { if (p <= 1) { setRevealed(true); return 0; } return p - 1; }), 1000);
+    return () => clearTimeout(timerRef.current);
+  }, [t, revealed]);
+
+  function answer(i) {
+    if (revealed) return;
+    clearTimeout(timerRef.current);
+    setSel(i); setRevealed(true);
+    if (i === q.ans) setScores(sc => ({ ...sc, [players[pi]]: sc[players[pi]] + 10 }));
+  }
+
+  function next() {
+    if (qi + 1 >= questions.length) { onEnd(scores); return; }
+    setPi((pi + 1) % players.length);
+    setQi(qi + 1);
+  }
+
+  const pct = (t / TIMER) * 100;
+  const tcol = t > 10 ? "#22C55E" : t > 5 ? "#F97316" : "#EF4444";
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ background:"rgba(0,0,0,0.35)", padding:"10px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ color:cat.bg, fontSize:11, fontWeight:700, letterSpacing:2, textTransform:"uppercase" }}>{cat.icon} {q.cat}</div>
+          <div style={{ color:"#475569", fontSize:12 }}>Q{qi+1} of {questions.length}</div>
+        </div>
+        <div style={{ textAlign:"right" }}>
+          <div style={{ color:"#fff", fontSize:13, fontWeight:700 }}>{players[pi]}'s turn</div>
+          <div style={{ color:"#475569", fontSize:12 }}>{scores[players[pi]]} pts</div>
+        </div>
+      </div>
+      <div style={{ height:4, background:"#1E293B" }}>
+        <div style={{ height:"100%", width:`${pct}%`, background:tcol, transition:"width 1s linear,background .3s" }} />
+      </div>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 18px", maxWidth:600, width:"100%", margin:"0 auto" }}>
+        <div style={{ display:"flex", justifyContent:"center", marginBottom:16 }}>
+          <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:"50%", width:54, height:54, display:"flex", alignItems:"center", justifyContent:"center", border:`2px solid ${tcol}` }}>
+            <span style={{ color:tcol, fontWeight:800, fontSize:20 }}>{t}</span>
+          </div>
+        </div>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"22px 20px", marginBottom:16, border:`1px solid ${cat.bg}30`, textAlign:"center" }}>
+          <p style={{ color:"#fff", fontSize:17, fontWeight:600, margin:0, lineHeight:1.55 }}>{q.q}</p>
+        </div>
+        {q.opts.map((opt, i) => {
+          let bg = "rgba(255,255,255,0.05)", border = "rgba(255,255,255,0.1)", color = "#94A3B8";
+          if (revealed) {
+            if (i === q.ans) { bg = "rgba(34,197,94,0.15)"; border = "#22C55E"; color = "#4ADE80"; }
+            else if (i === sel) { bg = "rgba(239,68,68,0.15)"; border = "#EF4444"; color = "#FCA5A5"; }
+          } else if (sel === i) { bg = `${cat.bg}20`; border = cat.bg; color = "#fff"; }
+          return (
+            <button key={i} onClick={() => answer(i)} disabled={revealed}
+              style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"13px 16px", cursor:revealed?"default":"pointer", textAlign:"left", display:"flex", alignItems:"center", gap:12, marginBottom:9, width:"100%", transition:"all .15s" }}>
+              <span style={{ background:"rgba(255,255,255,0.08)", borderRadius:"50%", width:28, height:28, minWidth:28, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:"#64748B" }}>{String.fromCharCode(65+i)}</span>
+              <span style={{ color, fontSize:14, lineHeight:1.4 }}>{opt}</span>
+            </button>
+          );
+        })}
+        {revealed && (
+          <div style={{ marginTop:4 }}>
+            <div style={{ textAlign:"center", marginBottom:14 }}>
+              {sel === q.ans
+                ? <div style={{ color:"#4ADE80", fontWeight:700, fontSize:17 }}>Correct! +10 pts 🎉</div>
+                : <div style={{ color:"#F87171", fontWeight:700, fontSize:17 }}>{sel === null ? "Time's up!" : "Not quite!"} Correct answer: <span style={{ color:"#4ADE80" }}>{q.opts[q.ans]}</span></div>
+              }
+            </div>
+            <button onClick={next} style={{ width:"100%", background:"#F97316", border:"none", borderRadius:12, padding:14, color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer" }}>
+              {qi+1 < questions.length ? "Next →" : "See Results →"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── FACILITATED GAME ──────────────────────────────────────────────────────────
+function FacilitatedGame({ players, onEnd }) {
+  const questions = useRef(pickQuestions()).current;
+  const [qi, setQi] = useState(0);
+  const [scores, setScores] = useState(() => Object.fromEntries(players.map(p => [p, 0])));
+  const [revealed, setRevealed] = useState(false);
+  const [awarded, setAwarded] = useState([]);
+
+  const q = questions[qi];
+  const cat = CAT[q.cat];
+
+  function award(p) {
+    if (awarded.includes(p)) return;
+    setAwarded(a => [...a, p]);
+    setScores(sc => ({ ...sc, [p]: sc[p] + 10 }));
+  }
+
+  function next() {
+    if (qi + 1 >= questions.length) { onEnd(scores); return; }
+    setQi(qi + 1); setRevealed(false); setAwarded([]);
+  }
+
+  const sorted = [...players].sort((a, b) => scores[b] - scores[a]);
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ background:"rgba(0,0,0,0.35)", padding:"10px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ color:cat.bg, fontSize:11, fontWeight:700, letterSpacing:2, textTransform:"uppercase" }}>{cat.icon} {q.cat}</div>
+          <div style={{ color:"#475569", fontSize:12 }}>Q{qi+1} of {questions.length}</div>
+        </div>
+        <div style={{ background:"rgba(234,179,8,0.12)", border:"1px solid #EAB308", borderRadius:8, padding:"4px 10px" }}>
+          <span style={{ color:"#EAB308", fontSize:11, fontWeight:700 }}>🎙️ FACILITATED</span>
+        </div>
+      </div>
+      <div style={{ flex:1, padding:"20px 18px", maxWidth:700, width:"100%", margin:"0 auto" }}>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"26px 22px", marginBottom:16, border:`1px solid ${cat.bg}40`, textAlign:"center" }}>
+          <p style={{ color:"#fff", fontSize:19, fontWeight:600, margin:0, lineHeight:1.55 }}>{q.q}</p>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
+          {q.opts.map((opt, i) => {
+            const ok = revealed && i === q.ans;
+            return (
+              <div key={i} style={{ background:ok?"rgba(34,197,94,0.14)":"rgba(255,255,255,0.05)", border:`2px solid ${ok?"#22C55E":"rgba(255,255,255,0.09)"}`, borderRadius:12, padding:"13px 15px", display:"flex", gap:10, alignItems:"flex-start", transition:"all .3s" }}>
+                <span style={{ background:"rgba(255,255,255,0.08)", borderRadius:"50%", width:26, height:26, minWidth:26, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:"#64748B" }}>{String.fromCharCode(65+i)}</span>
+                <span style={{ color:ok?"#4ADE80":"#94A3B8", fontSize:14, lineHeight:1.4 }}>{opt}</span>
+              </div>
+            );
+          })}
+        </div>
+        {!revealed
+          ? <button onClick={() => setRevealed(true)} style={{ width:"100%", background:"#EAB308", border:"none", borderRadius:12, padding:14, color:"#000", fontWeight:700, fontSize:15, cursor:"pointer" }}>Reveal Answer</button>
+          : <div>
+              <div style={{ color:"#4ADE80", textAlign:"center", fontWeight:700, fontSize:15, marginBottom:14 }}>✓ Correct: {q.opts[q.ans]}</div>
+              <div style={{ color:"#64748B", fontSize:13, textAlign:"center", marginBottom:10 }}>Award points to correct players:</div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginBottom:16 }}>
+                {players.map(p => (
+                  <button key={p} onClick={() => award(p)} disabled={awarded.includes(p)}
+                    style={{ background:awarded.includes(p)?"rgba(34,197,94,0.15)":"rgba(255,255,255,0.07)", border:`2px solid ${awarded.includes(p)?"#22C55E":"rgba(255,255,255,0.12)"}`, borderRadius:10, padding:"8px 16px", cursor:awarded.includes(p)?"default":"pointer", color:awarded.includes(p)?"#4ADE80":"#CBD5E1", fontWeight:600, fontSize:14, transition:"all .2s" }}>
+                    {awarded.includes(p) ? "✓ " : ""}{p}
+                  </button>
+                ))}
+              </div>
+              <button onClick={next} style={{ width:"100%", background:"#F97316", border:"none", borderRadius:12, padding:14, color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer" }}>
+                {qi+1 < questions.length ? "Next Question →" : "See Results →"}
+              </button>
+            </div>
+        }
+        <div style={{ marginTop:16, background:"rgba(255,255,255,0.03)", borderRadius:12, padding:14, display:"flex", flexWrap:"wrap", gap:14, justifyContent:"center" }}>
+          {sorted.map((p, i) => (
+            <div key={p} style={{ textAlign:"center" }}>
+              <div style={{ fontSize:16 }}>{["🥇","🥈","🥉"][i]||"🎖️"}</div>
+              <div style={{ color:"#e2e8f0", fontSize:13, fontWeight:700 }}>{p}</div>
+              <div style={{ color:"#F97316", fontSize:13 }}>{scores[p]} pts</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function Results({ scores, onRestart }) {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ fontSize:48, marginBottom:8 }}>🏆</div>
+      <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:3, textTransform:"uppercase", marginBottom:4 }}>Game Over</div>
+      <div style={{ color:"#fff", fontSize:28, fontWeight:800, marginBottom:6 }}>Final Scores</div>
+      <div style={{ color:"#475569", fontSize:13, marginBottom:28 }}>Well played, everyone!</div>
+      <div style={{ width:"100%", maxWidth:420, marginBottom:28 }}>
+        {sorted.map(([name, score], i) => (
+          <div key={name} style={{ background:i===0?"rgba(234,179,8,0.1)":"rgba(255,255,255,0.05)", border:`2px solid ${i===0?"#EAB308":"rgba(255,255,255,0.08)"}`, borderRadius:14, padding:"15px 18px", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <span style={{ fontSize:24 }}>{["🥇","🥈","🥉"][i]||"🎖️"}</span>
+              <div>
+                <div style={{ color:"#fff", fontWeight:700, fontSize:15 }}>{name}</div>
+                <div style={{ color:"#475569", fontSize:12 }}>Place {i+1}</div>
+              </div>
+            </div>
+            <div style={{ textAlign:"right" }}>
+              <div style={{ color:i===0?"#EAB308":"#F97316", fontWeight:800, fontSize:22 }}>{score}</div>
+              <div style={{ color:"#475569", fontSize:12 }}>pts</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={onRestart} style={{ background:"#F97316", border:"none", borderRadius:12, padding:"14px 40px", color:"#fff", fontWeight:800, fontSize:16, cursor:"pointer" }}>
+        Play Again
+      </button>
+      <div style={{ marginTop:24, color:"#1E3A5F", fontSize:12, fontWeight:600, letterSpacing:2, textTransform:"uppercase" }}>Edusport Travel and Tours</div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const [screen, setScreen] = useState("home");
+  const [mode, setMode] = useState(null);
+  const [players, setPlayers] = useState([]);
+  const [finalScores, setFinalScores] = useState(null);
+
+  function handleMode(m) { setMode(m); setScreen("setup"); }
+  function handleStart(pl) { setPlayers(pl); setScreen("game"); }
+  function handleEnd(sc) { setFinalScores(sc); setScreen("results"); }
+  function handleRestart() { setScreen("home"); setMode(null); setPlayers([]); setFinalScores(null); }
+
+  if (screen === "home") return <Home onMode={handleMode} />;
+  if (screen === "setup") return <Setup mode={mode} onStart={handleStart} onBack={() => setScreen("home")} />;
+  if (screen === "results") return <Results scores={finalScores} onRestart={handleRestart} />;
+  if (screen === "game") return mode === "individual"
+    ? <IndividualGame key={players.join()} players={players} onEnd={handleEnd} />
+    : <FacilitatedGame key={players.join()} players={players} onEnd={handleEnd} />;
+  return null;
+}
