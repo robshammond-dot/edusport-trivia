@@ -1,341 +1,402 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Edusport Trivia Challenge</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#0B1829;color:#fff;min-height:100vh}
-#app{min-height:100vh}
-.screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.wrap{width:100%;max-width:480px}
-.btn{border:none;border-radius:12px;padding:14px 20px;font-weight:700;font-size:15px;cursor:pointer;width:100%;display:block;font-family:inherit;transition:background .2s}
-.btn-blue{background:#1A5BA6;color:#fff}
-.btn-blue:hover{background:#1B6EC2}
-.btn-blue:disabled{background:#1e293b;color:#475569;cursor:default}
-.btn-gold{background:#C8961A;color:#fff}
-.mode-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;cursor:pointer;text-align:left;width:100%;font-family:inherit;transition:all .2s;margin-bottom:12px}
-.mode-card:hover{background:rgba(26,91,166,0.18);border-color:#1A5BA6}
-.input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;outline:none;width:100%;font-family:inherit}
-.input::placeholder{color:#475569}
-.input:focus{border-color:#1A5BA6}
-.player-row{background:rgba(255,255,255,0.06);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.avatar{background:#1A5BA6;color:#fff;border-radius:50%;width:28px;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.opt{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:9px;font-family:inherit;transition:all .15s}
-.opt:disabled{cursor:default}
-.opt .ltr{background:rgba(255,255,255,0.08);border-radius:50%;width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#64748B}
-.opt .txt{color:#94A3B8;font-size:14px;line-height:1.4}
-.opt.correct{background:rgba(34,197,94,0.15);border-color:#22C55E}
-.opt.correct .txt{color:#4ADE80}
-.opt.wrong{background:rgba(239,68,68,0.15);border-color:#EF4444}
-.opt.wrong .txt{color:#FCA5A5}
-.opt.chosen{border-color:#1A5BA6;background:rgba(26,91,166,0.15)}
-.opt.chosen .txt{color:#fff}
-.t-bar{height:4px;background:#1E293B}
-.t-fill{height:100%;transition:width 1s linear,background .3s}
-.top{background:rgba(0,0,0,0.35);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.board{background:rgba(255,255,255,0.03);border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:16px}
-.award-btn{background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 16px;cursor:pointer;color:#CBD5E1;font-weight:600;font-size:14px;font-family:inherit;margin:4px;transition:all .2s}
-.award-btn.done{background:rgba(34,197,94,0.15);border-color:#22C55E;color:#4ADE80;cursor:default}
-.result-row{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);border-radius:14px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.result-row.gold{background:rgba(200,150,26,0.1);border-color:#C8961A}
-.stats{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 16px;display:flex;gap:20px;justify-content:center;margin-top:16px}
-.stat{text-align:center}
-.stat .v{color:#1A5BA6;font-weight:800;font-size:18px}
-.stat .l{color:#475569;font-size:11px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
-.cat-btn{border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s;text-align:center;background:rgba(255,255,255,0.05);color:#94A3B8}
-.cat-btn.active{color:#fff}
-</style>
-</head>
-<body>
-<div id="app"></div>
-<script>
-const TIMER=35;
-const CAT={
-  'Sports World':{col:'#1A5BA6',icon:'🏆'},
-  'Travel Smart':{col:'#2EA527',icon:'✈️'},
-  'Soft Skills': {col:'#C8961A',icon:'🤝'}
+import { useState, useEffect, useRef } from "react";
+
+const CAT = {
+  "Sports World": { bg: "#F97316", icon: "🏆" },
+  "Travel Smart": { bg: "#0EA5E9", icon: "✈️" },
+  "Soft Skills":  { bg: "#10B981", icon: "🤝" },
 };
-const ALL=[
-  {c:'Sports World',q:'In which country was the 2023 Rugby World Cup hosted?',o:['Japan','Australia','France','England'],a:2},
-  {c:'Sports World',q:'How many times have the Springboks won the Rugby World Cup?',o:['Two','Three','Four','Five'],a:2},
-  {c:'Sports World',q:'What is the name of the trophy awarded to Rugby World Cup winners?',o:['The Bledisloe Cup','The Webb Ellis Cup','The Jules Rimet Trophy','The Calcutta Cup'],a:1},
-  {c:'Sports World',q:'Wimbledon is the only Grand Slam tennis tournament played on which surface?',o:['Clay','Hard court','Grass','Synthetic'],a:2},
-  {c:'Sports World',q:'The Tour de France traditionally finishes on which famous Parisian avenue?',o:['Rue de Rivoli','Avenue Montaigne','Boulevard Haussmann','Champs-Élysées'],a:3},
-  {c:'Sports World',q:'Which Premier League stadium is known as "The Theatre of Dreams"?',o:['Anfield','Stamford Bridge','Old Trafford','Emirates Stadium'],a:2},
-  {c:'Sports World',q:'MotoGP is the premier class of which sport?',o:['Formula One racing','Rally driving','Motorcycle road racing','Speedway'],a:2},
-  {c:'Sports World',q:'Which African country hosted the 2010 FIFA World Cup?',o:['Egypt','Nigeria','Morocco','South Africa'],a:3},
-  {c:'Sports World',q:'Which of these is NOT a golf Major championship?',o:['The Masters','The Open Championship','The Ryder Cup','PGA Championship'],a:2},
-  {c:'Sports World',q:'The Rugby World Cup is contested every how many years?',o:['Two','Three','Four','Five'],a:2},
-  {c:'Sports World',q:'At which venue is Wimbledon tennis played?',o:["Queen's Club","Flushing Meadows","All England Club","Roland Garros"],a:2},
-  {c:'Sports World',q:'Which city hosts the Formula 1 Monaco Grand Prix each year?',o:['Nice','Monaco','Cannes','Marseille'],a:1},
-  {c:'Travel Smart',q:'What does ISTAA stand for, of which Edusport is a proud member?',o:['International Sports Travel Agents Alliance','International Sports Travel Agencies Association','Institute of Sports Tourism and Accommodation in Africa','International Sports and Tourism Advisors Association'],a:1},
-  {c:'Travel Smart',q:'Edusport has been sending South Africans to the Rugby World Cup since which year?',o:['1999','2003','2007','2011'],a:2},
-  {c:'Travel Smart',q:'Why is it important to secure event tickets through official organisers?',o:['They are always the cheapest option','It guarantees authenticity and peace of mind','They can be refunded at any time','They include complimentary upgrades'],a:1},
-  {c:'Travel Smart',q:'What is "incentive travel" primarily designed to achieve?',o:['Offer last-minute discounted group rates','Provide athletes with competition support','Reward and motivate staff or clients aligned with business objectives','Replace traditional conference venues'],a:2},
-  {c:'Travel Smart',q:'A "tailor-made" sports travel package means it is:',o:['Always more expensive than standard packages','Pre-packaged with no changes allowed',"Customised to suit the client's unique travel requirements",'Only available to VIP clients'],a:2},
-  {c:'Travel Smart',q:'How many years of experience does Edusport have in sports travel?',o:['Over 10 years','Over 20 years','Over 25 years','Over 30 years'],a:3},
-  {c:'Travel Smart',q:'A VIP hospitality package at a sporting event typically adds:',o:['Guaranteed home team victory','Free airfare for the whole family','Priority boarding at all airports','Premium seating, catering and exclusive access'],a:3},
-  {c:'Travel Smart',q:'When advising a first-time sports traveller, what is the most important first step?',o:['Send them a brochure immediately','Book flights to secure the best price','Recommend the most popular package','Understand their goals, budget and preferred experience'],a:3},
-  {c:'Travel Smart',q:'Which best describes a "group supporter tour"?',o:['A private charter for VIP guests only','An organised trip for fans travelling together to support their team','A corporate team-building exercise','A travel package for athletes and coaches'],a:1},
-  {c:'Travel Smart',q:'What are the four key components Edusport handles in a sports travel package?',o:['Flights, meals, sightseeing and tickets','Flights, accommodation, transfers and tickets','Visas, flights, meals and hotels','Accommodation, meals, transfers and insurance'],a:1},
-  {c:'Soft Skills',q:"A client calls to say match tickets haven't arrived three days before travel. What is your first action?",o:['Tell them to check spam and call back','Transfer them to a manager immediately','Acknowledge their concern, apologise for the stress, and immediately investigate','Advise that tickets are always issued close to the event'],a:2},
-  {c:'Soft Skills',q:'Which best describes "active listening" in a client interaction?',o:['Talking more than the client to show expertise','Giving full attention, asking clarifying questions and reflecting back','Nodding along while preparing your response','Waiting for the client to finish before responding'],a:1},
-  {c:'Soft Skills',q:'A client requests a package outside your standard offering. What is the best approach?',o:['Tell them it is not possible','Refer them to a competitor','Offer the closest standard package without asking further questions','Explore whether you can customise something to meet their needs'],a:3},
-  {c:'Soft Skills',q:"You discover you have made an error in a client's hotel booking. What do you do?",o:['Wait and see if they notice','Fix it quietly and say nothing','Proactively inform the client, apologise and present a solution','Blame the hotel and move on'],a:2},
-  {c:'Soft Skills',q:'What is "upselling" in a travel sales context?',o:['Overcharging a client without their knowledge','Adding hidden fees to a booking','Selling unnecessary add-ons to increase revenue',"Suggesting a higher-value option that genuinely enhances the client's experience"],a:3},
-  {c:'Soft Skills',q:'A client returns from a trip disappointed with one aspect. What is the ideal response?',o:['Immediately offer a discount on their next booking','Thank them for the feedback, acknowledge their experience and explore improvements','Defend the service and explain why it was acceptable','Forward the complaint to the supplier without following up'],a:1},
-  {c:'Soft Skills',q:'Which is the most effective way to build long-term client relationships?',o:['Sending promotional emails as often as possible','Offering the lowest prices every time','Consistent, personalised follow-up and genuine interest in their experience','Only contacting clients when there is a new package to sell'],a:2},
-  {c:'Soft Skills',q:'A client calls in a panic because their flight is cancelled on the day of travel. What tone should you use?',o:['Businesslike and procedural to show professionalism','Apologetic but unable to assist further','Calm, empathetic and solution-focused','Urgent and anxious so they feel understood'],a:2},
-  {c:'Soft Skills',q:'What does "managing client expectations" mean?',o:['Promising more than you can deliver to win the sale','Clearly communicating what is included, what is not, and what clients can realistically expect','Only sharing good news with clients','Letting clients assume whatever they wish'],a:1},
-  {c:'Soft Skills',q:'A colleague is struggling with a large group booking and you have capacity. What do you do?',o:['Focus on your own work; it is not your responsibility','Tell your manager your colleague is struggling','Take over the booking without informing your colleague','Offer to assist and collaborate so the client is not affected'],a:3},
+
+const TIMER = 20;
+
+const ALL_QUESTIONS = [
+  { cat:"Sports World", q:"In which country was the 2023 Rugby World Cup hosted?", opts:["Japan","Australia","France","England"], ans:2 },
+  { cat:"Sports World", q:"How many times have the Springboks won the Rugby World Cup?", opts:["Two","Three","Four","Five"], ans:2 },
+  { cat:"Sports World", q:"What is the name of the trophy awarded to Rugby World Cup winners?", opts:["The Bledisloe Cup","The Webb Ellis Cup","The Jules Rimet Trophy","The Calcutta Cup"], ans:1 },
+  { cat:"Sports World", q:"Wimbledon is the only Grand Slam played on which surface?", opts:["Clay","Hard court","Grass","Synthetic"], ans:2 },
+  { cat:"Sports World", q:"The Tour de France traditionally finishes on which famous Parisian avenue?", opts:["Rue de Rivoli","Avenue Montaigne","Boulevard Haussmann","Champs-Élysées"], ans:3 },
+  { cat:"Sports World", q:'Which Premier League stadium is known as "The Theatre of Dreams"?', opts:["Anfield","Stamford Bridge","Old Trafford","Emirates Stadium"], ans:2 },
+  { cat:"Sports World", q:"MotoGP is the premier class of which sport?", opts:["Formula One racing","Rally driving","Motorcycle road racing","Speedway"], ans:2 },
+  { cat:"Sports World", q:"Which African country hosted the 2010 FIFA World Cup?", opts:["Egypt","Nigeria","Morocco","South Africa"], ans:3 },
+  { cat:"Sports World", q:"Which of these is NOT a golf Major championship?", opts:["The Masters","The Open Championship","The Ryder Cup","PGA Championship"], ans:2 },
+  { cat:"Sports World", q:"The Rugby World Cup is contested every how many years?", opts:["Two","Three","Four","Five"], ans:2 },
+  { cat:"Sports World", q:"At which venue is Wimbledon tennis played?", opts:["Queen's Club","Flushing Meadows","All England Club","Roland Garros"], ans:2 },
+  { cat:"Sports World", q:"Which city hosts the annual Monaco Formula 1 Grand Prix?", opts:["Nice","Monaco","Cannes","Marseille"], ans:1 },
+  { cat:"Travel Smart", q:"What does ISTAA stand for, of which Edusport is a proud member?", opts:["International Sports Travel Agents Alliance","International Sports Travel Agencies Association","Institute of Sports Tourism and Accommodation in Africa","International Sports and Tourism Advisors Association"], ans:1 },
+  { cat:"Travel Smart", q:"Edusport has been sending South Africans to the Rugby World Cup since which year?", opts:["1999","2003","2007","2011"], ans:2 },
+  { cat:"Travel Smart", q:"Why is it important to secure event tickets through official organisers?", opts:["They are always the cheapest option","It guarantees authenticity and peace of mind","They can be refunded at any time","They include complimentary upgrades"], ans:1 },
+  { cat:"Travel Smart", q:'What is "incentive travel" primarily designed to achieve?', opts:["Offer last-minute discounted group rates","Provide athletes with competition support","Reward and motivate staff or clients aligned with business objectives","Replace traditional conference venues"], ans:2 },
+  { cat:"Travel Smart", q:'A "tailor-made" sports travel package means it is:', opts:["Always more expensive than standard packages","Pre-packaged with no changes allowed","Customised to suit the client's unique travel requirements","Only available to VIP clients"], ans:2 },
+  { cat:"Travel Smart", q:"How many years of experience does Edusport have in sports travel?", opts:["Over 10 years","Over 20 years","Over 25 years","Over 30 years"], ans:3 },
+  { cat:"Travel Smart", q:"A VIP hospitality package at a sporting event typically adds:", opts:["Guaranteed home team victory","Free airfare for the whole family","Priority boarding at all airports","Premium seating, catering and exclusive access"], ans:3 },
+  { cat:"Travel Smart", q:"When advising a first-time sports traveller, what is the most important first step?", opts:["Send them a brochure immediately","Book flights to secure the best price","Recommend the most popular package","Understand their goals, budget and preferred experience"], ans:3 },
+  { cat:"Travel Smart", q:'Which best describes a "group supporter tour"?', opts:["A private charter for VIP guests only","An organised trip for fans travelling together to support their team","A corporate team-building exercise","A travel package for athletes and coaches"], ans:1 },
+  { cat:"Travel Smart", q:"What are the four key components Edusport handles in a sports travel package?", opts:["Flights, meals, sightseeing and tickets","Flights, accommodation, transfers and tickets","Visas, flights, meals and hotels","Accommodation, meals, transfers and insurance"], ans:1 },
+  { cat:"Soft Skills", q:"A client calls to say match tickets haven't arrived three days before travel. What is your first action?", opts:["Tell them to check spam and call back","Transfer them to a manager immediately","Acknowledge their concern, apologise for the stress, and immediately investigate","Advise that tickets are always issued close to the event"], ans:2 },
+  { cat:"Soft Skills", q:'Which best describes "active listening" in a client interaction?', opts:["Talking more than the client to show expertise","Giving full attention, asking clarifying questions and reflecting back","Nodding along while preparing your response","Waiting for the client to finish before responding"], ans:1 },
+  { cat:"Soft Skills", q:"A client requests a package outside your standard offering. What is the best approach?", opts:["Tell them it is not possible","Refer them to a competitor","Offer the closest standard package without asking further questions","Explore whether you can customise something to meet their needs"], ans:3 },
+  { cat:"Soft Skills", q:"You discover you have made an error in a client's hotel booking. What do you do?", opts:["Wait and see if they notice","Fix it quietly and say nothing","Proactively inform the client, apologise and present a solution","Blame the hotel and move on"], ans:2 },
+  { cat:"Soft Skills", q:'What is "upselling" in a travel sales context?', opts:["Overcharging a client without their knowledge","Adding hidden fees to a booking","Selling unnecessary add-ons to increase revenue","Suggesting a higher-value option that genuinely enhances the client's experience"], ans:3 },
+  { cat:"Soft Skills", q:"A client returns from a trip disappointed with one aspect. What is the ideal response?", opts:["Immediately offer a discount on their next booking","Thank them for the feedback, acknowledge their experience and explore improvements","Defend the service and explain why it was acceptable","Forward the complaint to the supplier without following up"], ans:1 },
+  { cat:"Soft Skills", q:"Which is the most effective way to build long-term client relationships?", opts:["Sending promotional emails as often as possible","Offering the lowest prices every time","Consistent, personalised follow-up and genuine interest in their experience","Only contacting clients when there is a new package to sell"], ans:2 },
+  { cat:"Soft Skills", q:"A client calls in a panic because their flight is cancelled on the day of travel. What tone should you use?", opts:["Businesslike and procedural to show professionalism","Apologetic but unable to assist further","Calm, empathetic and solution-focused","Urgent and anxious so they feel understood"], ans:2 },
+  { cat:"Soft Skills", q:'What does "managing client expectations" mean?', opts:["Promising more than you can deliver to win the sale","Clearly communicating what is included, what is not, and what clients can realistically expect","Only sharing good news with clients","Letting clients assume whatever they wish"], ans:1 },
+  { cat:"Soft Skills", q:"A colleague is struggling with a large group booking and you have capacity. What do you do?", opts:["Focus on your own work; it is not your responsibility","Tell your manager your colleague is struggling","Take over the booking without informing your colleague","Offer to assist and collaborate so the client is not affected"], ans:3 },
 ];
 
-const S={
-  screen:'home',mode:null,players:[],nameInput:'',
-  categories:['Sports World','Travel Smart','Soft Skills'],
-  questions:[],qIdx:0,curP:0,scores:{},
-  selected:null,revealed:false,awarded:[],
-  timer:TIMER,_iv:null
-};
-
-function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
-
-function pickQ(){
-  const active=S.categories;
-  const m={};
-  ALL.filter(q=>active.includes(q.c)).forEach(q=>{(m[q.c]=m[q.c]||[]).push(q);});
-  const pool=[];
-  const perCat=Math.ceil(15/active.length);
-  Object.values(m).forEach(qs=>pool.push(...shuffle(qs).slice(0,perCat)));
-  return shuffle(pool).slice(0,15);
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function stopT(){if(S._iv){clearInterval(S._iv);S._iv=null;}}
-function startT(){
-  stopT();S.timer=TIMER;
-  S._iv=setInterval(()=>{
-    S.timer--;
-    const f=document.getElementById('tf'),n=document.getElementById('tn'),r=document.getElementById('tr');
-    const col=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
-    if(f){f.style.width=(S.timer/TIMER*100)+'%';f.style.background=col;}
-    if(n){n.textContent=S.timer;n.style.color=col;}
-    if(r){r.style.borderColor=col;}
-    if(S.timer<=0){stopT();S.revealed=true;render();}
-  },1000);
-}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function logoHTML(center){
-  return `<div style="text-align:${center?'center':'left'};margin-bottom:24px">
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:2px">EDUSPORT</div>
-    <div style="color:#2EA527;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase">TRAVEL AND TOURS</div>
-  </div>`;
+function pickQuestions() {
+  const byCat = {};
+  ALL_QUESTIONS.forEach(q => { (byCat[q.cat] = byCat[q.cat] || []).push(q); });
+  const pool = [];
+  Object.values(byCat).forEach(qs => pool.push(...shuffle(qs).slice(0, 5)));
+  return shuffle(pool);
 }
 
-function render(){
-  const app=document.getElementById('app');
-  if(S.screen==='home')app.innerHTML=rHome();
-  else if(S.screen==='setup')app.innerHTML=rSetup();
-  else if(S.screen==='game'&&S.mode==='individual')app.innerHTML=rIndividual();
-  else if(S.screen==='game'&&S.mode==='facilitated')app.innerHTML=rFacilitated();
-  else if(S.screen==='results')app.innerHTML=rResults();
-  if(S.screen==='game'&&S.mode==='individual'&&!S.revealed)startT();
-}
-
-function rHome(){
-  const cats=Object.entries(CAT).map(([c,v])=>`<div style="text-align:center"><div style="font-size:22px">${v.icon}</div><div style="color:${v.col};font-size:11px;font-weight:700;margin-top:4px">${c}</div></div>`).join('');
-  return `<div class="screen"><div class="wrap" style="text-align:center">
-    ${logoHTML(true)}
-    <div style="color:#fff;font-size:34px;font-weight:800;margin-bottom:6px">Trivia Challenge</div>
-    <div style="color:#64748B;font-size:13px;margin-bottom:28px">Sports · Travel · Soft Skills</div>
-    <div style="color:#94A3B8;font-size:14px;margin-bottom:20px">Select a game mode to begin</div>
-    <button class="mode-card" onclick="setMode('individual')">
-      <div style="font-size:28px;margin-bottom:6px">👤</div>
-      <div style="color:#fff;font-weight:700;font-size:16px;margin-bottom:4px">Individual Play</div>
-      <div style="color:#94A3B8;font-size:13px;line-height:1.5">Solo or take turns on a shared screen. A countdown timer keeps the pressure on.</div>
-    </button>
-    <button class="mode-card" onclick="setMode('facilitated')">
-      <div style="font-size:28px;margin-bottom:6px">🎙️</div>
-      <div style="color:#fff;font-weight:700;font-size:16px;margin-bottom:4px">Facilitated Play</div>
-      <div style="color:#94A3B8;font-size:13px;line-height:1.5">A host reads questions aloud at their own pace. Reveal the answer when ready, then award points manually.</div>
-    </button>
-    <div style="display:flex;gap:24px;justify-content:center;margin-top:28px">${cats}</div>
-  </div></div>`;
-}
-
-function rSetup(){
-  const fac=S.mode==='facilitated';
-  const rows=S.players.map((p,i)=>`<div class="player-row">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="avatar">${i+1}</div>
-      <span style="color:#e2e8f0;font-size:14px">${esc(p)}</span>
-    </div>
-    <button onclick="removeP(${i})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:22px;line-height:1;font-family:inherit">×</button>
-  </div>`).join('');
-
-  const catBtns=Object.entries(CAT).map(([c,v])=>{
-    const on=S.categories.includes(c);
-    return `<button class="cat-btn${on?' active':''}" onclick="toggleCat('${c}')"
-      style="${on?`background:${v.col}22;border-color:${v.col};color:#fff;`:''}">
-      ${v.icon} ${c}
-    </button>`;
-  }).join('');
-
-  const canStart=S.players.length>=1&&S.categories.length>=1;
-  return `<div class="screen"><div class="wrap">
-    <button onclick="goHome()" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:14px;margin-bottom:20px;padding:0;font-family:inherit">← Back</button>
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">${fac?'Facilitated Play':'Individual Play'}</div>
-    <div style="color:#fff;font-size:26px;font-weight:800;margin-bottom:6px">Setup</div>
-
-    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Categories</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px">${catBtns}</div>
-
-    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Players</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:14px">${fac?'Add up to 8 players or teams.':'Add 1 or more players. Solo play works too.'}</div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <input class="input" id="ni" placeholder="${fac?'Player or team name…':'Player name…'}"
-        oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}" autofocus>
-      <button onclick="addP()" style="background:#1A5BA6;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit">Add</button>
-    </div>
-    <div style="min-height:50px;margin-bottom:24px">${rows}</div>
-
-    <button class="btn btn-blue" onclick="startGame()" ${!canStart?'disabled':''}>
-      Start Game — ${S.players.length} ${S.players.length===1?'player':'players'}
-    </button>
-    <div class="stats">
-      <div class="stat"><div class="v">15</div><div class="l">Questions</div></div>
-      <div class="stat"><div class="v">10</div><div class="l">Pts each</div></div>
-      ${!fac?`<div class="stat"><div class="v">${TIMER}s</div><div class="l">Timer</div></div>`:''}
-      <div class="stat"><div class="v">${S.categories.length}</div><div class="l">Categories</div></div>
-    </div>
-  </div></div>`;
-}
-
-function rIndividual(){
-  const q=S.questions[S.qIdx],cat=CAT[q.c],pl=S.players[S.curP];
-  const pct=(S.timer/TIMER*100)+'%',tcol=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
-  const opts=q.o.map((o,i)=>{
-    let cls='opt';
-    if(S.revealed){if(i===q.a)cls+=' correct';else if(i===S.selected)cls+=' wrong';}
-    else if(S.selected===i)cls+=' chosen';
-    return `<button class="${cls}" onclick="answer(${i})" ${S.revealed?'disabled':''}><span class="ltr">${String.fromCharCode(65+i)}</span><span class="txt">${esc(o)}</span></button>`;
-  }).join('');
-  const fb=S.revealed?`<div style="text-align:center;margin-bottom:14px">
-    ${S.selected===q.a?'<div style="color:#4ADE80;font-weight:700;font-size:17px">Correct! +10 pts 🎉</div>':`<div style="color:#F87171;font-weight:700;font-size:17px">${S.selected===null?"Time's up!":"Not quite!"} Correct answer: <span style="color:#4ADE80">${esc(q.o[q.a])}</span></div>`}
-  </div><button class="btn btn-blue" onclick="nextQ()">${S.qIdx+1<S.questions.length?'Next →':'See Results →'}</button>`:'';
-  return `<div style="min-height:100vh;background:#0B1829;display:flex;flex-direction:column;font-family:inherit">
-    <div class="top">
-      <div><div style="color:${cat.col};font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${cat.icon} ${q.c}</div><div style="color:#475569;font-size:12px">Q${S.qIdx+1} of ${S.questions.length}</div></div>
-      <div style="text-align:right"><div style="color:#fff;font-size:13px;font-weight:700">${esc(pl)}'s turn</div><div style="color:#475569;font-size:12px">${S.scores[pl]} pts</div></div>
-    </div>
-    <div class="t-bar"><div class="t-fill" id="tf" style="width:${pct};background:${tcol}"></div></div>
-    <div style="flex:1;padding:20px 18px;max-width:600px;width:100%;margin:0 auto">
-      <div id="tr" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:2px solid ${tcol}">
-        <span id="tn" style="color:${tcol};font-weight:800;font-size:20px">${S.timer}</span>
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function Home({ onMode }) {
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ textAlign:"center", marginBottom:40 }}>
+        <div style={{ fontSize:52, marginBottom:6 }}>🏆</div>
+        <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:4, textTransform:"uppercase", marginBottom:4 }}>EDUSPORT TRAVEL</div>
+        <div style={{ color:"#fff", fontSize:34, fontWeight:800, lineHeight:1.1 }}>Trivia Challenge</div>
+        <div style={{ color:"#64748B", fontSize:13, marginTop:6 }}>Sports · Travel · Soft Skills</div>
       </div>
-      <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:22px 20px;margin-bottom:16px;border:1px solid ${cat.col}30;text-align:center">
-        <p style="color:#fff;font-size:17px;font-weight:600;margin:0;line-height:1.55">${esc(q.q)}</p>
+      <div style={{ color:"#94A3B8", fontSize:14, marginBottom:20, textAlign:"center" }}>Select a game mode to begin</div>
+      <div style={{ display:"flex", flexDirection:"column", gap:14, width:"100%", maxWidth:420 }}>
+        {[
+          { mode:"individual", icon:"👤", title:"Individual Play", desc:"Solo or take turns on a shared screen. A countdown timer keeps the pressure on.", col:"#F97316" },
+          { mode:"facilitated", icon:"🎙️", title:"Facilitated Play", desc:"A host reads questions aloud at their own pace. Reveal the answer when ready, then award points manually.", col:"#0EA5E9" },
+        ].map(({ mode, icon, title, desc, col }) => (
+          <ModeCard key={mode} col={col} onClick={() => onMode(mode)}>
+            <div style={{ fontSize:28, marginBottom:8 }}>{icon}</div>
+            <div style={{ color:"#fff", fontSize:17, fontWeight:700, marginBottom:4 }}>{title}</div>
+            <div style={{ color:"rgba(255,255,255,0.6)", fontSize:13, lineHeight:1.5 }}>{desc}</div>
+          </ModeCard>
+        ))}
       </div>
-      ${opts}${fb}
-    </div>
-  </div>`;
-}
-
-function rFacilitated(){
-  const q=S.questions[S.qIdx],cat=CAT[q.c];
-  const opts=q.o.map((o,i)=>{const ok=S.revealed&&i===q.a;return `<div style="background:${ok?'rgba(34,197,94,0.14)':'rgba(255,255,255,0.05)'};border:2px solid ${ok?'#22C55E':'rgba(255,255,255,0.09)'};border-radius:12px;padding:13px 15px;display:flex;gap:10px;align-items:flex-start">
-    <span style="background:rgba(255,255,255,0.08);border-radius:50%;width:26px;height:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#64748B">${String.fromCharCode(65+i)}</span>
-    <span style="color:${ok?'#4ADE80':'#94A3B8'};font-size:14px;line-height:1.4">${esc(o)}</span>
-  </div>`;}).join('');
-  const awards=S.players.map((p,i)=>{const done=S.awarded.includes(i);return `<button class="award-btn${done?' done':''}" onclick="${done?'':'awardP('+i+')'}">${done?'✓ ':''}${esc(p)}</button>`;}).join('');
-  const sorted=[...S.players.map((p,i)=>({p,i}))].sort((a,b)=>S.scores[b.p]-S.scores[a.p]);
-  const board=sorted.map(({p},r)=>`<div style="text-align:center"><div style="font-size:16px">${['🥇','🥈','🥉'][r]||'🎖️'}</div><div style="color:#e2e8f0;font-size:13px;font-weight:700">${esc(p)}</div><div style="color:#1A5BA6;font-size:13px">${S.scores[p]} pts</div></div>`).join('');
-  const ctrl=!S.revealed?`<button class="btn btn-gold" onclick="reveal()">Reveal Answer</button>`:`<div>
-    <div style="color:#4ADE80;text-align:center;font-weight:700;font-size:15px;margin-bottom:14px">✓ Correct: ${esc(q.o[q.a])}</div>
-    <div style="color:#64748B;font-size:13px;text-align:center;margin-bottom:10px">Award points to correct players:</div>
-    <div style="text-align:center;margin-bottom:16px">${awards}</div>
-    <button class="btn btn-blue" onclick="nextQ()">${S.qIdx+1<S.questions.length?'Next Question →':'See Results →'}</button>
-  </div>`;
-  return `<div style="min-height:100vh;background:#0B1829;display:flex;flex-direction:column;font-family:inherit">
-    <div class="top">
-      <div><div style="color:${cat.col};font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${cat.icon} ${q.c}</div><div style="color:#475569;font-size:12px">Q${S.qIdx+1} of ${S.questions.length}</div></div>
-      <div style="background:rgba(200,150,26,0.12);border:1px solid #C8961A;border-radius:8px;padding:4px 10px"><span style="color:#C8961A;font-size:11px;font-weight:700">🎙️ FACILITATED</span></div>
-    </div>
-    <div style="flex:1;padding:20px 18px;max-width:700px;width:100%;margin:0 auto">
-      <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:26px 22px;margin-bottom:16px;border:1px solid ${cat.col}45;text-align:center">
-        <p style="color:#fff;font-size:19px;font-weight:600;margin:0;line-height:1.55">${esc(q.q)}</p>
+      <div style={{ marginTop:36, display:"flex", gap:28, justifyContent:"center" }}>
+        {Object.entries(CAT).map(([c, v]) => (
+          <div key={c} style={{ textAlign:"center" }}>
+            <div style={{ fontSize:22 }}>{v.icon}</div>
+            <div style={{ color:v.bg, fontSize:11, fontWeight:700, marginTop:4 }}>{c}</div>
+          </div>
+        ))}
       </div>
-      <div class="grid2">${opts}</div>
-      ${ctrl}
-      <div class="board">${board}</div>
     </div>
-  </div>`;
+  );
 }
 
-function rResults(){
-  const sorted=Object.entries(S.scores).sort((a,b)=>b[1]-a[1]);
-  const rows=sorted.map(([n,s],i)=>`<div class="result-row ${i===0?'gold':''}">
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:26px">${['🥇','🥈','🥉'][i]||'🎖️'}</span>
-      <div><div style="color:#fff;font-weight:700;font-size:15px">${esc(n)}</div><div style="color:#475569;font-size:12px">Place ${i+1}</div></div>
+function ModeCard({ col, onClick, children }) {
+  const [h, setH] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ background:h?col:"rgba(255,255,255,0.04)", border:`2px solid ${h?col:"rgba(255,255,255,0.09)"}`, borderRadius:16, padding:"20px 22px", cursor:"pointer", textAlign:"left", transition:"all .2s", width:"100%" }}>
+      {children}
+    </button>
+  );
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+function Setup({ mode, onStart, onBack }) {
+  const [players, setPlayers] = useState([]);
+  const [input, setInput] = useState("");
+  const isFac = mode === "facilitated";
+
+  function add() {
+    const n = input.trim();
+    if (!n || players.includes(n) || players.length >= 8) return;
+    setPlayers(p => [...p, n]);
+    setInput("");
+  }
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ width:"100%", maxWidth:460 }}>
+        <button onClick={onBack} style={{ background:"none", border:"none", color:"#64748B", cursor:"pointer", fontSize:14, marginBottom:24, padding:0 }}>← Back</button>
+        <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:3, textTransform:"uppercase", marginBottom:6 }}>
+          {isFac ? "Facilitated Play" : "Individual Play"}
+        </div>
+        <div style={{ color:"#fff", fontSize:26, fontWeight:800, marginBottom:6 }}>Add Players</div>
+        <div style={{ color:"#475569", fontSize:13, marginBottom:28 }}>
+          {isFac
+            ? "Add up to 8 players or teams. The facilitator will award points manually."
+            : "Add 1 or more players. Solo play works too — great for self-practice with the timer."}
+        </div>
+
+        <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && add()}
+            placeholder={isFac ? "Player or team name…" : "Player name…"}
+            style={{ flex:1, background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.12)", borderRadius:10, padding:"12px 14px", color:"#fff", fontSize:14, outline:"none" }} />
+          <button onClick={add} disabled={!input.trim() || players.length >= 8}
+            style={{ background:"#F97316", border:"none", borderRadius:10, padding:"12px 18px", color:"#fff", fontWeight:700, fontSize:14, cursor:"pointer", opacity:(!input.trim()||players.length>=8)?0.35:1 }}>Add</button>
+        </div>
+
+        <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:28, minHeight:50 }}>
+          {players.map((p, i) => (
+            <div key={p} style={{ background:"rgba(255,255,255,0.06)", borderRadius:10, padding:"11px 14px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ background:"#F97316", color:"#fff", borderRadius:"50%", width:26, height:26, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700 }}>{i+1}</div>
+                <span style={{ color:"#e2e8f0", fontSize:14 }}>{p}</span>
+              </div>
+              <button onClick={() => setPlayers(pl => pl.filter(x => x !== p))} style={{ background:"none", border:"none", color:"#475569", cursor:"pointer", fontSize:20, lineHeight:1 }}>×</button>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={() => onStart(players)} disabled={players.length < 1}
+          style={{ width:"100%", background:players.length>=1?"#F97316":"#1E293B", border:"none", borderRadius:12, padding:16, color:players.length>=1?"#fff":"#475569", fontWeight:800, fontSize:16, cursor:players.length>=1?"pointer":"default" }}>
+          Start Game — {players.length} {players.length === 1 ? "player" : "players"}
+        </button>
+
+        <div style={{ marginTop:18, background:"rgba(255,255,255,0.03)", borderRadius:10, padding:"12px 16px", display:"flex", gap:20, justifyContent:"center" }}>
+          {[["Questions","15"],["Pts each","10"],...(!isFac?[["Timer","20s"]]:[]),["Categories","3"]].map(([l,v]) => (
+            <div key={l} style={{ textAlign:"center" }}>
+              <div style={{ color:"#F97316", fontWeight:800, fontSize:18 }}>{v}</div>
+              <div style={{ color:"#475569", fontSize:11 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
-    <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#1A5BA6'};font-weight:800;font-size:22px">${s}</div><div style="color:#475569;font-size:12px">pts</div></div>
-  </div>`).join('');
-  return `<div class="screen"><div class="wrap" style="text-align:center">
-    ${logoHTML(true)}
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Game Over</div>
-    <div style="color:#fff;font-size:28px;font-weight:800;margin-bottom:6px">Final Scores</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:28px">Well played, everyone!</div>
-    <div style="margin-bottom:24px;text-align:left">${rows}</div>
-    <button class="btn btn-blue" onclick="reset()">Play Again</button>
-    <div style="margin-top:28px;color:#1a2e4a;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Edusport Travel and Tours</div>
-  </div></div>`;
+  );
 }
 
-function setMode(m){S.mode=m;S.screen='setup';render();}
-function goHome(){stopT();S.screen='home';render();}
-function toggleCat(c){
-  const i=S.categories.indexOf(c);
-  if(i>-1){if(S.categories.length>1)S.categories.splice(i,1);}
-  else S.categories.push(c);
-  render();
-}
-function addP(){
-  const el=document.getElementById('ni');
-  const n=(el?el.value:S.nameInput).trim();
-  if(!n||S.players.includes(n)||S.players.length>=8)return;
-  S.players.push(n);S.nameInput='';render();
-}
-function removeP(i){S.players.splice(i,1);render();}
-function startGame(){
-  if(!S.players.length||!S.categories.length)return;
-  S.questions=pickQ();S.scores={};S.players.forEach(p=>S.scores[p]=0);
-  S.qIdx=0;S.curP=0;S.selected=null;S.revealed=false;S.awarded=[];S.timer=TIMER;
-  S.screen='game';render();
-}
-function answer(i){if(S.revealed)return;stopT();S.selected=i;S.revealed=true;if(i===S.questions[S.qIdx].a)S.scores[S.players[S.curP]]+=10;render();}
-function nextQ(){
-  stopT();
-  if(S.qIdx+1>=S.questions.length){S.screen='results';render();return;}
-  S.qIdx++;
-  if(S.mode==='individual')S.curP=(S.curP+1)%S.players.length;
-  S.selected=null;S.revealed=false;S.awarded=[];S.timer=TIMER;
-  render();
-}
-function reveal(){S.revealed=true;render();}
-function awardP(i){if(S.awarded.includes(i))return;S.awarded.push(i);S.scores[S.players[i]]+=10;render();}
-function reset(){
-  stopT();
-  Object.assign(S,{screen:'home',mode:null,players:[],nameInput:'',
-    categories:['Sports World','Travel Smart','Soft Skills'],
-    questions:[],qIdx:0,curP:0,scores:{},selected:null,revealed:false,awarded:[],timer:TIMER,_iv:null});
-  render();
+// ── INDIVIDUAL GAME ───────────────────────────────────────────────────────────
+function IndividualGame({ players, onEnd }) {
+  const questions = useRef(pickQuestions()).current;
+  const [qi, setQi] = useState(0);
+  const [pi, setPi] = useState(0);
+  const [scores, setScores] = useState(() => Object.fromEntries(players.map(p => [p, 0])));
+  const [sel, setSel] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [t, setT] = useState(TIMER);
+  const timerRef = useRef(null);
+
+  const q = questions[qi];
+  const cat = CAT[q.cat];
+
+  useEffect(() => { setT(TIMER); setSel(null); setRevealed(false); }, [qi]);
+
+  useEffect(() => {
+    if (revealed) return clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setT(p => { if (p <= 1) { setRevealed(true); return 0; } return p - 1; }), 1000);
+    return () => clearTimeout(timerRef.current);
+  }, [t, revealed]);
+
+  function answer(i) {
+    if (revealed) return;
+    clearTimeout(timerRef.current);
+    setSel(i); setRevealed(true);
+    if (i === q.ans) setScores(sc => ({ ...sc, [players[pi]]: sc[players[pi]] + 10 }));
+  }
+
+  function next() {
+    if (qi + 1 >= questions.length) { onEnd(scores); return; }
+    setPi((pi + 1) % players.length);
+    setQi(qi + 1);
+  }
+
+  const pct = (t / TIMER) * 100;
+  const tcol = t > 10 ? "#22C55E" : t > 5 ? "#F97316" : "#EF4444";
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ background:"rgba(0,0,0,0.35)", padding:"10px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ color:cat.bg, fontSize:11, fontWeight:700, letterSpacing:2, textTransform:"uppercase" }}>{cat.icon} {q.cat}</div>
+          <div style={{ color:"#475569", fontSize:12 }}>Q{qi+1} of {questions.length}</div>
+        </div>
+        <div style={{ textAlign:"right" }}>
+          <div style={{ color:"#fff", fontSize:13, fontWeight:700 }}>{players[pi]}'s turn</div>
+          <div style={{ color:"#475569", fontSize:12 }}>{scores[players[pi]]} pts</div>
+        </div>
+      </div>
+      <div style={{ height:4, background:"#1E293B" }}>
+        <div style={{ height:"100%", width:`${pct}%`, background:tcol, transition:"width 1s linear,background .3s" }} />
+      </div>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 18px", maxWidth:600, width:"100%", margin:"0 auto" }}>
+        <div style={{ display:"flex", justifyContent:"center", marginBottom:16 }}>
+          <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:"50%", width:54, height:54, display:"flex", alignItems:"center", justifyContent:"center", border:`2px solid ${tcol}` }}>
+            <span style={{ color:tcol, fontWeight:800, fontSize:20 }}>{t}</span>
+          </div>
+        </div>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"22px 20px", marginBottom:16, border:`1px solid ${cat.bg}30`, textAlign:"center" }}>
+          <p style={{ color:"#fff", fontSize:17, fontWeight:600, margin:0, lineHeight:1.55 }}>{q.q}</p>
+        </div>
+        {q.opts.map((opt, i) => {
+          let bg = "rgba(255,255,255,0.05)", border = "rgba(255,255,255,0.1)", color = "#94A3B8";
+          if (revealed) {
+            if (i === q.ans) { bg = "rgba(34,197,94,0.15)"; border = "#22C55E"; color = "#4ADE80"; }
+            else if (i === sel) { bg = "rgba(239,68,68,0.15)"; border = "#EF4444"; color = "#FCA5A5"; }
+          } else if (sel === i) { bg = `${cat.bg}20`; border = cat.bg; color = "#fff"; }
+          return (
+            <button key={i} onClick={() => answer(i)} disabled={revealed}
+              style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"13px 16px", cursor:revealed?"default":"pointer", textAlign:"left", display:"flex", alignItems:"center", gap:12, marginBottom:9, width:"100%", transition:"all .15s" }}>
+              <span style={{ background:"rgba(255,255,255,0.08)", borderRadius:"50%", width:28, height:28, minWidth:28, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:"#64748B" }}>{String.fromCharCode(65+i)}</span>
+              <span style={{ color, fontSize:14, lineHeight:1.4 }}>{opt}</span>
+            </button>
+          );
+        })}
+        {revealed && (
+          <div style={{ marginTop:4 }}>
+            <div style={{ textAlign:"center", marginBottom:14 }}>
+              {sel === q.ans
+                ? <div style={{ color:"#4ADE80", fontWeight:700, fontSize:17 }}>Correct! +10 pts 🎉</div>
+                : <div style={{ color:"#F87171", fontWeight:700, fontSize:17 }}>{sel === null ? "Time's up!" : "Not quite!"} Correct answer: <span style={{ color:"#4ADE80" }}>{q.opts[q.ans]}</span></div>
+              }
+            </div>
+            <button onClick={next} style={{ width:"100%", background:"#F97316", border:"none", borderRadius:12, padding:14, color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer" }}>
+              {qi+1 < questions.length ? "Next →" : "See Results →"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
-render();
-</script>
-</body>
-</html>
+// ── FACILITATED GAME ──────────────────────────────────────────────────────────
+function FacilitatedGame({ players, onEnd }) {
+  const questions = useRef(pickQuestions()).current;
+  const [qi, setQi] = useState(0);
+  const [scores, setScores] = useState(() => Object.fromEntries(players.map(p => [p, 0])));
+  const [revealed, setRevealed] = useState(false);
+  const [awarded, setAwarded] = useState([]);
+
+  const q = questions[qi];
+  const cat = CAT[q.cat];
+
+  function award(p) {
+    if (awarded.includes(p)) return;
+    setAwarded(a => [...a, p]);
+    setScores(sc => ({ ...sc, [p]: sc[p] + 10 }));
+  }
+
+  function next() {
+    if (qi + 1 >= questions.length) { onEnd(scores); return; }
+    setQi(qi + 1); setRevealed(false); setAwarded([]);
+  }
+
+  const sorted = [...players].sort((a, b) => scores[b] - scores[a]);
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ background:"rgba(0,0,0,0.35)", padding:"10px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ color:cat.bg, fontSize:11, fontWeight:700, letterSpacing:2, textTransform:"uppercase" }}>{cat.icon} {q.cat}</div>
+          <div style={{ color:"#475569", fontSize:12 }}>Q{qi+1} of {questions.length}</div>
+        </div>
+        <div style={{ background:"rgba(234,179,8,0.12)", border:"1px solid #EAB308", borderRadius:8, padding:"4px 10px" }}>
+          <span style={{ color:"#EAB308", fontSize:11, fontWeight:700 }}>🎙️ FACILITATED</span>
+        </div>
+      </div>
+      <div style={{ flex:1, padding:"20px 18px", maxWidth:700, width:"100%", margin:"0 auto" }}>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"26px 22px", marginBottom:16, border:`1px solid ${cat.bg}40`, textAlign:"center" }}>
+          <p style={{ color:"#fff", fontSize:19, fontWeight:600, margin:0, lineHeight:1.55 }}>{q.q}</p>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
+          {q.opts.map((opt, i) => {
+            const ok = revealed && i === q.ans;
+            return (
+              <div key={i} style={{ background:ok?"rgba(34,197,94,0.14)":"rgba(255,255,255,0.05)", border:`2px solid ${ok?"#22C55E":"rgba(255,255,255,0.09)"}`, borderRadius:12, padding:"13px 15px", display:"flex", gap:10, alignItems:"flex-start", transition:"all .3s" }}>
+                <span style={{ background:"rgba(255,255,255,0.08)", borderRadius:"50%", width:26, height:26, minWidth:26, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, color:"#64748B" }}>{String.fromCharCode(65+i)}</span>
+                <span style={{ color:ok?"#4ADE80":"#94A3B8", fontSize:14, lineHeight:1.4 }}>{opt}</span>
+              </div>
+            );
+          })}
+        </div>
+        {!revealed
+          ? <button onClick={() => setRevealed(true)} style={{ width:"100%", background:"#EAB308", border:"none", borderRadius:12, padding:14, color:"#000", fontWeight:700, fontSize:15, cursor:"pointer" }}>Reveal Answer</button>
+          : <div>
+              <div style={{ color:"#4ADE80", textAlign:"center", fontWeight:700, fontSize:15, marginBottom:14 }}>✓ Correct: {q.opts[q.ans]}</div>
+              <div style={{ color:"#64748B", fontSize:13, textAlign:"center", marginBottom:10 }}>Award points to correct players:</div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginBottom:16 }}>
+                {players.map(p => (
+                  <button key={p} onClick={() => award(p)} disabled={awarded.includes(p)}
+                    style={{ background:awarded.includes(p)?"rgba(34,197,94,0.15)":"rgba(255,255,255,0.07)", border:`2px solid ${awarded.includes(p)?"#22C55E":"rgba(255,255,255,0.12)"}`, borderRadius:10, padding:"8px 16px", cursor:awarded.includes(p)?"default":"pointer", color:awarded.includes(p)?"#4ADE80":"#CBD5E1", fontWeight:600, fontSize:14, transition:"all .2s" }}>
+                    {awarded.includes(p) ? "✓ " : ""}{p}
+                  </button>
+                ))}
+              </div>
+              <button onClick={next} style={{ width:"100%", background:"#F97316", border:"none", borderRadius:12, padding:14, color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer" }}>
+                {qi+1 < questions.length ? "Next Question →" : "See Results →"}
+              </button>
+            </div>
+        }
+        <div style={{ marginTop:16, background:"rgba(255,255,255,0.03)", borderRadius:12, padding:14, display:"flex", flexWrap:"wrap", gap:14, justifyContent:"center" }}>
+          {sorted.map((p, i) => (
+            <div key={p} style={{ textAlign:"center" }}>
+              <div style={{ fontSize:16 }}>{["🥇","🥈","🥉"][i]||"🎖️"}</div>
+              <div style={{ color:"#e2e8f0", fontSize:13, fontWeight:700 }}>{p}</div>
+              <div style={{ color:"#F97316", fontSize:13 }}>{scores[p]} pts</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function Results({ scores, onRestart }) {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  return (
+    <div style={{ minHeight:"100vh", background:"#0A1628", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"system-ui,sans-serif" }}>
+      <div style={{ fontSize:48, marginBottom:8 }}>🏆</div>
+      <div style={{ color:"#F97316", fontSize:11, fontWeight:700, letterSpacing:3, textTransform:"uppercase", marginBottom:4 }}>Game Over</div>
+      <div style={{ color:"#fff", fontSize:28, fontWeight:800, marginBottom:6 }}>Final Scores</div>
+      <div style={{ color:"#475569", fontSize:13, marginBottom:28 }}>Well played, everyone!</div>
+      <div style={{ width:"100%", maxWidth:420, marginBottom:28 }}>
+        {sorted.map(([name, score], i) => (
+          <div key={name} style={{ background:i===0?"rgba(234,179,8,0.1)":"rgba(255,255,255,0.05)", border:`2px solid ${i===0?"#EAB308":"rgba(255,255,255,0.08)"}`, borderRadius:14, padding:"15px 18px", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <span style={{ fontSize:24 }}>{["🥇","🥈","🥉"][i]||"🎖️"}</span>
+              <div>
+                <div style={{ color:"#fff", fontWeight:700, fontSize:15 }}>{name}</div>
+                <div style={{ color:"#475569", fontSize:12 }}>Place {i+1}</div>
+              </div>
+            </div>
+            <div style={{ textAlign:"right" }}>
+              <div style={{ color:i===0?"#EAB308":"#F97316", fontWeight:800, fontSize:22 }}>{score}</div>
+              <div style={{ color:"#475569", fontSize:12 }}>pts</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={onRestart} style={{ background:"#F97316", border:"none", borderRadius:12, padding:"14px 40px", color:"#fff", fontWeight:800, fontSize:16, cursor:"pointer" }}>
+        Play Again
+      </button>
+      <div style={{ marginTop:24, color:"#1E3A5F", fontSize:12, fontWeight:600, letterSpacing:2, textTransform:"uppercase" }}>Edusport Travel and Tours</div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const [screen, setScreen] = useState("home");
+  const [mode, setMode] = useState(null);
+  const [players, setPlayers] = useState([]);
+  const [finalScores, setFinalScores] = useState(null);
+
+  function handleMode(m) { setMode(m); setScreen("setup"); }
+  function handleStart(pl) { setPlayers(pl); setScreen("game"); }
+  function handleEnd(sc) { setFinalScores(sc); setScreen("results"); }
+  function handleRestart() { setScreen("home"); setMode(null); setPlayers([]); setFinalScores(null); }
+
+  if (screen === "home") return <Home onMode={handleMode} />;
+  if (screen === "setup") return <Setup mode={mode} onStart={handleStart} onBack={() => setScreen("home")} />;
+  if (screen === "results") return <Results scores={finalScores} onRestart={handleRestart} />;
+  if (screen === "game") return mode === "individual"
+    ? <IndividualGame key={players.join()} players={players} onEnd={handleEnd} />
+    : <FacilitatedGame key={players.join()} players={players} onEnd={handleEnd} />;
+  return null;
+}
