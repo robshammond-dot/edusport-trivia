@@ -102,7 +102,7 @@ function startT(){
     S.timer--;
     const f=document.getElementById('tf'),n=document.getElementById('tn'),r=document.getElementById('tr');
     const col=S.timer>10?'#22C55E':S.timer>5?'#F97316':'#EF4444';
-    if(f){f.style.width=(S.timer/20*100)+'%';f.style.background=col;}
+    if(f){f.style.width=(S.timer/35*100)+'%';f.style.background=col;}
     if(n){n.textContent=S.timer;n.style.color=col;}
     if(r){r.style.borderColor=col;}
     if(S.timer<=0){stopT();S.revealed=true;render();}
@@ -182,7 +182,7 @@ function rSetup(){
 
 function rIndividual(){
   const q=S.questions[S.qIdx],cat=CAT[q.c],pl=S.players[S.curP];
-  const pct=(S.timer/20*100)+'%',tcol=S.timer>10?'#22C55E':S.timer>5?'#F97316':'#EF4444';
+  const pct=(S.timer/35*100)+'%',tcol=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
   const opts=q.o.map((o,i)=>{
     let cls='opt';
     if(S.revealed){if(i===q.a)cls+=' correct';else if(i===S.selected)cls+=' wrong';}
@@ -263,7 +263,7 @@ function rResults(){
 
 function setMode(m){S.mode=m;S.screen='setup';render();}
 function goHome(){stopT();S.screen='home';render();}
-function addP(){const n=S.nameInput.trim();if(!n||S.players.includes(n)||S.players.length>=8)return;S.players.push(n);S.nameInput='';render();}
+function addP(){const el=document.getElementById('ni');const n=(el?el.value:S.nameInput).trim();if(!n||S.players.includes(n)||S.players.length>=8)return;S.players.push(n);S.nameInput='';render();}
 function removeP(i){S.players.splice(i,1);render();}
 function startGame(){if(!S.players.length)return;S.questions=pickQ();S.scores={};S.players.forEach(p=>S.scores[p]=0);S.qIdx=0;S.curP=0;S.selected=null;S.revealed=false;S.awarded=[];S.timer=20;S.screen='game';render();}
 function answer(i){if(S.revealed)return;stopT();S.selected=i;S.revealed=true;if(i===S.questions[S.qIdx].a)S.scores[S.players[S.curP]]+=10;render();}
