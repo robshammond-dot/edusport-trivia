@@ -111,26 +111,9 @@ function startT(){
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function logoHTML(){
-  return `<div style="display:flex;align-items:center;justify-content:center;margin-bottom:28px">
-    <img src="edusport-logo.png" alt="Edusport Travel and Tours" style="height:64px;max-width:260px;object-fit:contain"
-      onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
-    <div id="logo-fb" style="display:none;align-items:center;gap:10px">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 76" style="height:62px;flex-shrink:0">
-        <circle cx="6" cy="68" r="2.8" fill="#1A5BA6"/><circle cx="14" cy="61" r="2.8" fill="#1A5BA6"/>
-        <circle cx="23" cy="56" r="2.8" fill="#1A5BA6"/><circle cx="32" cy="53" r="2.8" fill="#1A5BA6"/>
-        <circle cx="42" cy="52" r="2.8" fill="#1A5BA6"/><circle cx="51" cy="53" r="2.8" fill="#1A5BA6"/>
-        <circle cx="60" cy="57" r="2.8" fill="#1A5BA6"/>
-        <path d="M8,70 Q26,38 62,54" stroke="#1A5BA6" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <circle cx="56" cy="21" r="7" fill="#1A5BA6"/>
-        <path d="M56,28 L47,52" stroke="#1A5BA6" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <path d="M52,38 L66,30" stroke="#1A5BA6" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <path d="M22,9 Q40,2 62,16" stroke="#8BAD27" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-      </svg>
-      <div style="line-height:1.1">
-        <div style="color:#1A5BA6;font-size:28px;font-weight:900;letter-spacing:-0.5px">EDUSPORT</div>
-        <div style="color:#2EA527;font-size:12px;font-weight:700;letter-spacing:2px">TRAVEL AND TOURS</div>
-      </div>
-    </div>
+  return `<div style="text-align:center;margin-bottom:28px">
+    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">EDUSPORT</div>
+    <div style="color:#2EA527;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase">TRAVEL AND TOURS</div>
   </div>`;
 }
 
@@ -181,8 +164,8 @@ function rSetup(){
     <div style="color:#fff;font-size:26px;font-weight:800;margin-bottom:6px">Add Players</div>
     <div style="color:#475569;font-size:13px;margin-bottom:28px">${fac?'Add up to 8 players or teams. The facilitator awards points manually.':'Add 1 or more players. Solo play works too — great for self-practice with the timer.'}</div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <input class="input" id="ni" placeholder="${fac?'Player or team name…':'Player name…'}" oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}">
-      <button onclick="addP()" ${dis?'disabled':''} style="background:${dis?'#1e3a5f':'#1A5BA6'};color:${dis?'#475569':'#fff'};border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:${dis?'default':'pointer'};white-space:nowrap;font-family:inherit">Add</button>
+      <input class="input" id="ni" placeholder="${fac?'Player or team name…':'Player name…'}" oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}" autofocus>
+      <button onclick="addP()" style="background:#1A5BA6;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit">Add</button>
     </div>
     <div style="min-height:50px;margin-bottom:24px">${rows}</div>
     <button class="btn btn-blue" onclick="startGame()" ${S.players.length<1?'disabled':''}>
