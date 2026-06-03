@@ -33,7 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .opt.chosen{border-color:#1A5BA6;background:rgba(26,91,166,0.15)}
 .opt.chosen .txt{color:#fff}
 .t-bar{height:4px;background:#1E293B}
-.t-fill{height:100%;background:#22C55E;transition:width 1s linear,background .3s}
+.t-fill{height:100%;transition:width 1s linear,background .3s}
 .top{background:rgba(0,0,0,0.35);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .board{background:rgba(255,255,255,0.03);border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:16px}
 .award-btn{background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 16px;cursor:pointer;color:#CBD5E1;font-weight:600;font-size:14px;font-family:inherit;margin:4px;transition:all .2s}
@@ -45,17 +45,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .stat .v{color:#1A5BA6;font-weight:800;font-size:18px}
 .stat .l{color:#475569;font-size:11px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+.cat-btn{border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s;text-align:center;background:rgba(255,255,255,0.05);color:#94A3B8}
+.cat-btn.active{color:#fff}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
+const TIMER=35;
 const CAT={
   'Sports World':{col:'#1A5BA6',icon:'🏆'},
   'Travel Smart':{col:'#2EA527',icon:'✈️'},
   'Soft Skills': {col:'#C8961A',icon:'🤝'}
 };
-
 const ALL=[
   {c:'Sports World',q:'In which country was the 2023 Rugby World Cup hosted?',o:['Japan','Australia','France','England'],a:2},
   {c:'Sports World',q:'How many times have the Springboks won the Rugby World Cup?',o:['Two','Three','Four','Five'],a:2},
@@ -91,18 +93,34 @@ const ALL=[
   {c:'Soft Skills',q:'A colleague is struggling with a large group booking and you have capacity. What do you do?',o:['Focus on your own work; it is not your responsibility','Tell your manager your colleague is struggling','Take over the booking without informing your colleague','Offer to assist and collaborate so the client is not affected'],a:3},
 ];
 
-const S={screen:'home',mode:null,players:[],nameInput:'',questions:[],qIdx:0,curP:0,scores:{},selected:null,revealed:false,awarded:[],timer:20,_iv:null};
+const S={
+  screen:'home',mode:null,players:[],nameInput:'',
+  categories:['Sports World','Travel Smart','Soft Skills'],
+  questions:[],qIdx:0,curP:0,scores:{},
+  selected:null,revealed:false,awarded:[],
+  timer:TIMER,_iv:null
+};
 
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
-function pickQ(){const m={};ALL.forEach(q=>{(m[q.c]=m[q.c]||[]).push(q);});const pool=[];Object.values(m).forEach(qs=>pool.push(...shuffle(qs).slice(0,5)));return shuffle(pool);}
+
+function pickQ(){
+  const active=S.categories;
+  const m={};
+  ALL.filter(q=>active.includes(q.c)).forEach(q=>{(m[q.c]=m[q.c]||[]).push(q);});
+  const pool=[];
+  const perCat=Math.ceil(15/active.length);
+  Object.values(m).forEach(qs=>pool.push(...shuffle(qs).slice(0,perCat)));
+  return shuffle(pool).slice(0,15);
+}
+
 function stopT(){if(S._iv){clearInterval(S._iv);S._iv=null;}}
 function startT(){
-  stopT();S.timer=20;
+  stopT();S.timer=TIMER;
   S._iv=setInterval(()=>{
     S.timer--;
     const f=document.getElementById('tf'),n=document.getElementById('tn'),r=document.getElementById('tr');
-    const col=S.timer>10?'#22C55E':S.timer>5?'#F97316':'#EF4444';
-    if(f){f.style.width=(S.timer/35*100)+'%';f.style.background=col;}
+    const col=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
+    if(f){f.style.width=(S.timer/TIMER*100)+'%';f.style.background=col;}
     if(n){n.textContent=S.timer;n.style.color=col;}
     if(r){r.style.borderColor=col;}
     if(S.timer<=0){stopT();S.revealed=true;render();}
@@ -110,9 +128,9 @@ function startT(){
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function logoHTML(){
-  return `<div style="text-align:center;margin-bottom:28px">
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">EDUSPORT</div>
+function logoHTML(center){
+  return `<div style="text-align:${center?'center':'left'};margin-bottom:24px">
+    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:2px">EDUSPORT</div>
     <div style="color:#2EA527;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase">TRAVEL AND TOURS</div>
   </div>`;
 }
@@ -130,7 +148,7 @@ function render(){
 function rHome(){
   const cats=Object.entries(CAT).map(([c,v])=>`<div style="text-align:center"><div style="font-size:22px">${v.icon}</div><div style="color:${v.col};font-size:11px;font-weight:700;margin-top:4px">${c}</div></div>`).join('');
   return `<div class="screen"><div class="wrap" style="text-align:center">
-    ${logoHTML()}
+    ${logoHTML(true)}
     <div style="color:#fff;font-size:34px;font-weight:800;margin-bottom:6px">Trivia Challenge</div>
     <div style="color:#64748B;font-size:13px;margin-bottom:28px">Sports · Travel · Soft Skills</div>
     <div style="color:#94A3B8;font-size:14px;margin-bottom:20px">Select a game mode to begin</div>
@@ -157,32 +175,48 @@ function rSetup(){
     </div>
     <button onclick="removeP(${i})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:22px;line-height:1;font-family:inherit">×</button>
   </div>`).join('');
-  const dis=!S.nameInput.trim()||S.players.length>=8;
+
+  const catBtns=Object.entries(CAT).map(([c,v])=>{
+    const on=S.categories.includes(c);
+    return `<button class="cat-btn${on?' active':''}" onclick="toggleCat('${c}')"
+      style="${on?`background:${v.col}22;border-color:${v.col};color:#fff;`:''}">
+      ${v.icon} ${c}
+    </button>`;
+  }).join('');
+
+  const canStart=S.players.length>=1&&S.categories.length>=1;
   return `<div class="screen"><div class="wrap">
     <button onclick="goHome()" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:14px;margin-bottom:20px;padding:0;font-family:inherit">← Back</button>
     <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">${fac?'Facilitated Play':'Individual Play'}</div>
-    <div style="color:#fff;font-size:26px;font-weight:800;margin-bottom:6px">Add Players</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:28px">${fac?'Add up to 8 players or teams. The facilitator awards points manually.':'Add 1 or more players. Solo play works too — great for self-practice with the timer.'}</div>
+    <div style="color:#fff;font-size:26px;font-weight:800;margin-bottom:6px">Setup</div>
+
+    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Categories</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px">${catBtns}</div>
+
+    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Players</div>
+    <div style="color:#475569;font-size:13px;margin-bottom:14px">${fac?'Add up to 8 players or teams.':'Add 1 or more players. Solo play works too.'}</div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <input class="input" id="ni" placeholder="${fac?'Player or team name…':'Player name…'}" oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}" autofocus>
+      <input class="input" id="ni" placeholder="${fac?'Player or team name…':'Player name…'}"
+        oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}" autofocus>
       <button onclick="addP()" style="background:#1A5BA6;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit">Add</button>
     </div>
     <div style="min-height:50px;margin-bottom:24px">${rows}</div>
-    <button class="btn btn-blue" onclick="startGame()" ${S.players.length<1?'disabled':''}>
+
+    <button class="btn btn-blue" onclick="startGame()" ${!canStart?'disabled':''}>
       Start Game — ${S.players.length} ${S.players.length===1?'player':'players'}
     </button>
     <div class="stats">
       <div class="stat"><div class="v">15</div><div class="l">Questions</div></div>
       <div class="stat"><div class="v">10</div><div class="l">Pts each</div></div>
-      ${!fac?'<div class="stat"><div class="v">20s</div><div class="l">Timer</div></div>':''}
-      <div class="stat"><div class="v">3</div><div class="l">Categories</div></div>
+      ${!fac?`<div class="stat"><div class="v">${TIMER}s</div><div class="l">Timer</div></div>`:''}
+      <div class="stat"><div class="v">${S.categories.length}</div><div class="l">Categories</div></div>
     </div>
   </div></div>`;
 }
 
 function rIndividual(){
   const q=S.questions[S.qIdx],cat=CAT[q.c],pl=S.players[S.curP];
-  const pct=(S.timer/35*100)+'%',tcol=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
+  const pct=(S.timer/TIMER*100)+'%',tcol=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
   const opts=q.o.map((o,i)=>{
     let cls='opt';
     if(S.revealed){if(i===q.a)cls+=' correct';else if(i===S.selected)cls+=' wrong';}
@@ -251,7 +285,7 @@ function rResults(){
     <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#1A5BA6'};font-weight:800;font-size:22px">${s}</div><div style="color:#475569;font-size:12px">pts</div></div>
   </div>`).join('');
   return `<div class="screen"><div class="wrap" style="text-align:center">
-    ${logoHTML()}
+    ${logoHTML(true)}
     <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Game Over</div>
     <div style="color:#fff;font-size:28px;font-weight:800;margin-bottom:6px">Final Scores</div>
     <div style="color:#475569;font-size:13px;margin-bottom:28px">Well played, everyone!</div>
@@ -263,14 +297,43 @@ function rResults(){
 
 function setMode(m){S.mode=m;S.screen='setup';render();}
 function goHome(){stopT();S.screen='home';render();}
-function addP(){const el=document.getElementById('ni');const n=(el?el.value:S.nameInput).trim();if(!n||S.players.includes(n)||S.players.length>=8)return;S.players.push(n);S.nameInput='';render();}
+function toggleCat(c){
+  const i=S.categories.indexOf(c);
+  if(i>-1){if(S.categories.length>1)S.categories.splice(i,1);}
+  else S.categories.push(c);
+  render();
+}
+function addP(){
+  const el=document.getElementById('ni');
+  const n=(el?el.value:S.nameInput).trim();
+  if(!n||S.players.includes(n)||S.players.length>=8)return;
+  S.players.push(n);S.nameInput='';render();
+}
 function removeP(i){S.players.splice(i,1);render();}
-function startGame(){if(!S.players.length)return;S.questions=pickQ();S.scores={};S.players.forEach(p=>S.scores[p]=0);S.qIdx=0;S.curP=0;S.selected=null;S.revealed=false;S.awarded=[];S.timer=20;S.screen='game';render();}
+function startGame(){
+  if(!S.players.length||!S.categories.length)return;
+  S.questions=pickQ();S.scores={};S.players.forEach(p=>S.scores[p]=0);
+  S.qIdx=0;S.curP=0;S.selected=null;S.revealed=false;S.awarded=[];S.timer=TIMER;
+  S.screen='game';render();
+}
 function answer(i){if(S.revealed)return;stopT();S.selected=i;S.revealed=true;if(i===S.questions[S.qIdx].a)S.scores[S.players[S.curP]]+=10;render();}
-function nextQ(){stopT();if(S.qIdx+1>=S.questions.length){S.screen='results';render();return;}S.qIdx++;if(S.mode==='individual')S.curP=(S.curP+1)%S.players.length;S.selected=null;S.revealed=false;S.awarded=[];S.timer=20;render();}
+function nextQ(){
+  stopT();
+  if(S.qIdx+1>=S.questions.length){S.screen='results';render();return;}
+  S.qIdx++;
+  if(S.mode==='individual')S.curP=(S.curP+1)%S.players.length;
+  S.selected=null;S.revealed=false;S.awarded=[];S.timer=TIMER;
+  render();
+}
 function reveal(){S.revealed=true;render();}
 function awardP(i){if(S.awarded.includes(i))return;S.awarded.push(i);S.scores[S.players[i]]+=10;render();}
-function reset(){stopT();Object.assign(S,{screen:'home',mode:null,players:[],nameInput:'',questions:[],qIdx:0,curP:0,scores:{},selected:null,revealed:false,awarded:[],timer:20,_iv:null});render();}
+function reset(){
+  stopT();
+  Object.assign(S,{screen:'home',mode:null,players:[],nameInput:'',
+    categories:['Sports World','Travel Smart','Soft Skills'],
+    questions:[],qIdx:0,curP:0,scores:{},selected:null,revealed:false,awarded:[],timer:TIMER,_iv:null});
+  render();
+}
 
 render();
 </script>
