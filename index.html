@@ -3,7 +3,7 @@
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Edusport Trivia Challenge</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -18,7 +18,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 .btn-gold{background:#C8961A;color:#fff}
 .mode-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;cursor:pointer;text-align:left;width:100%;font-family:inherit;transition:all .2s;margin-bottom:12px}
 .mode-card:hover{background:rgba(26,91,166,0.18);border-color:#1A5BA6}
-.input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;outline:none;width:100%;font-family:inherit}
+.input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:16px;outline:none;width:100%;font-family:inherit}
 .input::placeholder{color:#475569}
 .input:focus{border-color:#1A5BA6}
 .player-row{background:rgba(255,255,255,0.06);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -196,7 +196,13 @@ const CAT={
 };
 // Sub-topics within Sports World, so the top-level picker never grows past 3 buttons
 // no matter how many individual sports get added underneath Sports World.
-const SPORTS_SUBS = ['Rugby','Football','Tennis','Cycling','Motorsport','Golf','Formula 1'];
+// Sub-topics within each top-level category, so the top-level picker never grows
+// past 3 buttons no matter how many sub-topics get added underneath a category.
+const SUBS = {
+  'Sports World': ['Rugby','Football','Tennis','Cycling','Motorsport','MotoGP','Golf','Formula 1','Adventure Travel'],
+  'Travel Smart': ['Visas','Flight Tips and Rules','General Travel Tips'],
+  'Soft Skills': ['Client Service','Customer Profiling','Phone Etiquette','Sales & Company Knowledge']
+};
 const ALL=[
   {c:'Sports World',sub:'Rugby',q:'In which country was the 2023 Rugby World Cup hosted?',o:['Japan','Australia','France','England'],a:2},
   {c:'Sports World',sub:'Rugby',q:'How many times have the Springboks won the Rugby World Cup?',o:['Two','Three','Four','Five'],a:2},
@@ -205,6 +211,125 @@ const ALL=[
   {c:'Sports World',sub:'Cycling',q:'The Tour de France traditionally finishes on which famous Parisian avenue?',o:['Rue de Rivoli','Avenue Montaigne','Boulevard Haussmann','Champs-Élysées'],a:3},
   {c:'Sports World',sub:'Football',q:'Which Premier League stadium is known as "The Theatre of Dreams"?',o:['Anfield','Stamford Bridge','Old Trafford','Emirates Stadium'],a:2},
   {c:'Sports World',sub:'Motorsport',q:'MotoGP is the premier class of which sport?',o:['Formula One racing','Rally driving','Motorcycle road racing','Speedway'],a:2},
+  {c:'Sports World',sub:'MotoGP',q:'How many laps make up the Mugello MotoGP at Autodromo Internazionale del Mugello?',o:['20','22','24','26'],a:2},
+  {c:'Sports World',sub:'MotoGP',q:'What must South African passport holders arrange for the Mugello MotoGP in Italy?',o:['No visa required','An Italian Schengen visa, applied for at least 2 months before','A UK visa','A visa on arrival'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'In which year did the Czech MotoGP first race at Automotodrom Brno?',o:['1977','1987','1996','2004'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'Which airport does Edusport recommend as the best gateway for the Czech MotoGP, even though it is not in the Czech Republic?',o:['Prague (PRG)','Vienna (VIE)','Munich (MUC)','Budapest (BUD)'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'The TT Circuit Assen, home of the Dutch MotoGP, is nicknamed what?',o:['"The Temple of Speed"','"The Cathedral of Speed"','"Monaco without the walls"','"The City of Winds"'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'In which year was the first race held at TT Circuit Assen, making it the oldest MotoGP venue in Edusport\'s current line-up?',o:['1949','1977','1987','1996'],a:0},
+  {c:'Sports World',sub:'MotoGP',q:'In which year did the Algarve International Circuit hold its first Portugal MotoGP race?',o:['2004','2010','2020','1999'],a:2},
+  {c:'Sports World',sub:'MotoGP',q:'The Portugal MotoGP is held in November — how does the guide describe the weather compared to Portugal\'s summer season?',o:['Just as hot as summer','Much cooler, but the Algarve generally stays relatively mild','Colder than a South African winter','Unpredictably freezing'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'What is described as the "biggest wildcard" for the Qatar MotoGP at Lusail?',o:['Extreme heat','Evening winds that can blow sand onto the track','Heavy rainfall','Sudden fog'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'Do South African passport holders need a visa in advance for the Qatar MotoGP?',o:['Yes, applied for well in advance','No, they receive a free visa waiver on arrival','Only for stays over 14 days','Yes, but only an e-visa'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'Why is the Valencia MotoGP described as the "crown jewel" of the MotoGP calendar?',o:['It has the longest circuit','It serves as the grand season finale','It is the oldest race on the calendar','It has the most laps'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'According to the guide, when do restaurants in Valencia typically open for dinner during MotoGP weekend?',o:['Around 18:00','Rarely before 20:30, with locals eating around 21:30-22:00','Restaurants don\'t serve dinner','Around 17:00'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'How far in advance should South African passport holders apply for their Austrian Schengen visa for the Austrian MotoGP?',o:['At least 2 weeks before','At least 6 weeks before','At least 2 months before','At least 6 months before'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'How many laps does the Austrian MotoGP run at the Red Bull Ring — the most of any MotoGP circuit in Edusport\'s current line-up?',o:['24','26','28','30'],a:2},
+  {c:'Sports World',sub:'MotoGP',q:'The San Marino MotoGP at Misano is described as combining motorsport with what kind of experience?',o:['A desert adventure','A "Race and Riviera" beach vacation','A mountain retreat','A city-break-only trip'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'Which airport is the main gateway for the San Marino MotoGP, despite the race being held near Rimini?',o:['Rome Fiumicino','Bologna Airport','Milan Malpensa','Venice Marco Polo'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'The Aragon/Spanish MotoGP at MotorLand Aragón is known for which distinctive circuit feature?',o:['A floodlit night race','Its counter-clockwise layout and "Spanish Fever" atmosphere','The shortest lap count on the calendar','A fully covered circuit'],a:1},
+  {c:'Sports World',sub:'MotoGP',q:'In which year did MotorLand Aragón first host a MotoGP race?',o:['1996','2004','2010','2020'],a:2},
+  {c:'Sports World',sub:'MotoGP',q:'How many laps does the British MotoGP run at Silverstone — the fewest of any MotoGP circuit in Edusport\'s current line-up?',o:['20','22','24','26'],a:0},
+  {c:'Sports World',sub:'MotoGP',q:'What travel document must South African passport holders arrange for the British MotoGP, unlike most of the other European rounds?',o:['A Schengen visa','A UK British visa, applied for at least 1-2 months before','No visa is required','A visa on arrival'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Nauders to Lake Garda cycling tour cover along the Adige Cycle Path?',o:['200km','250km','300km','350km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which lake does the Adige Cycle Path route from Nauders finish at?',o:['Lake Como','Lake Garda','Lake Maggiore','Lake Bled'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Trans Austria Small Historic Towns cycling tour cover?',o:['280km','335km','415km','300km'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'In which city does the Trans Austria Small Historic Towns tour both start and finish?',o:['Salzburg','Vienna','Linz','Innsbruck'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Tauern Classic Tour from Krimml to Passau cycles past which major waterfalls near the start of the route?',o:['The Krimml Waterfalls','The Gollinger Waterfall','Victoria Falls','Trummelbach Falls'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Tauern Classic Tour from Krimml to Passau cover?',o:['255km','280km','300km','335km'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Tauern Cycle Path Round Tour both starts and finishes in which city?',o:['Innsbruck','Salzburg','Linz','Vienna'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Tauern Cycle Path Round Tour cover?',o:['235km','255km','280km','300km'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many lakes does the Salzkammergut cycling tour guide clients past?',o:['5','8','10','12'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Salzkammergut 10 Lakes Round Trip cover?',o:['235km','255km','280km','300km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Inn Cycle Path Classic Tour cycles from Innsbruck to which Bavarian three-river city?',o:['Munich','Passau','Salzburg','Linz'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Inn Cycle Path Classic Tour (Innsbruck to Passau) cover?',o:['250km','280km','300km','335km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'What does the guide say the Danube Classic Tour is, probably, among cycle paths?',o:['The most popular cycle path in Europe','The steepest cycle path in Europe','The newest cycle path in Europe','The most remote cycle path in Europe'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Danube Classic Tour from Passau to Vienna cover?',o:['280km','300km','335km','415km'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Grand Tour of Tuscany cycling tour begins in Pisa and ends in which city?',o:['Siena','Florence','Rome','Lucca'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'What grade is assigned to the Grand Tour of Tuscany, recommended only for well-trained cyclists?',o:['Easy','Moderate','Challenging','Expert'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Waterways of Venice tour combines cycling with which other mode of transport?',o:['Train','Boat and barge','Hot air balloon','Horse-drawn cart'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which two cities can the Waterways of Venice tour depart from?',o:['Venice or Verona','Mantua or Venice','Padua or Venice','Ferrara or Mantua'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The O Salnes Spiritual Variant connects the Portuguese Way with which route, considered the origin of all Caminos?',o:['The French Way','The Translatio Route (Arousa Sea and Ulla River Route)','The Northern Way','The Primitive Way'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Part of the O Salnes Spiritual Variant can be completed using which unusual mode of transport?',o:['Bicycle','Boat, sailing the Arousa estuary','Horseback','Cable car'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:"The French Food Lover's Le Puy Camino begins in which town, known for its green lentils?",o:['Cahors','Le Puy-en-Velay','Conques','Moissac'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which of these is the Le Puy Camino food tour particularly known for showcasing, alongside truffles and wine?',o:['Seafood','Cheese and local cuisine such as aligot and charcuterie','Chocolate','Tropical fruit'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Super Tulip Tour visits which world-famous flower garden?',o:['Kew Gardens','Keukenhof','Butchart Gardens','Versailles'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Super Tulip Tour combines cycling with which other mode of transport on day one, sailing to Amsterdam?',o:['Train','Barge or boat','Cable car','Hot air balloon'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which of these Edusport adventure tours is rated Easy rather than Moderate?',o:['Grand Tour of Tuscany','The Waterways of Venice','Trans Austria Small Historic Towns','Tauern Classic Tour'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which of these adventure tours covers the longest distance, at 415 kilometres?',o:['Danube Classic Tour','Trans Austria Small Historic Towns','Tauern Classic Tour','Grand Tour of Tuscany'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Salzkammergut Cycle Path (Salzburg – Lake District), Bad Ischl was the summer residence of which emperor?',o:['Emperor Franz Joseph','Emperor Napoleon','Emperor Maximilian','Emperor Karl'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'What pre-historic dwellings can cyclists visit in the village of Mondsee on the Salzkammergut Cycle Path?',o:['Cave paintings','Stilt houses','Burial mounds','Hill forts'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Portuguese Coastal Way to Santiago includes a "Pilgrim Kit" — what two items does it contain?',o:['A map and compass','A pilgrim passport (credencial) and a shell (vieira)','A water bottle and sun hat','A guidebook and torch'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many walking days are included across the Portuguese Coastal Way to Santiago\'s 15-day itinerary?',o:['9','11','13','15'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Portuguese Camino – Last 100km begins at the fortress town of Valença, crossing which river to enter Spain?',o:['River Douro','River Minho','River Lima','River Tagus'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which local delicacy from Arcade does the Portuguese Camino – Last 100km overview highlight, alongside mussels from the Ria de Vigo?',o:['Sardines','Oysters','Octopus','Anchovies'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Explore Peneda-Gerês National Park is a walking holiday through Portugal\'s only national park — what breed of long-horned cattle might hikers encounter grazing freely?',o:['Highland cattle','Cachena cows','Charolais cattle','Nguni cattle'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Besides shepherd\'s shelters and a medieval castle, what unusual historic structure for controlling predators does the Peneda-Gerês itinerary mention?',o:['A bear pit','A traditional wolf trap','A falconry mews','A watchtower'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Easy Cycling Portuguese Coastal Camino, which model of mountain bike is provided as part of the bike rental?',o:['Trek Marlin 6 with 29" wheels','Specialized Rockhopper','Giant Talon','Cannondale Trail'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'A scenic ferry ride on the Easy Cycling Portuguese Coastal Camino carries cyclists into Spain, arriving at which Galician town?',o:['Baiona','A Guarda','Vigo','Pontevedra'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Easy Coastal Camino spreads its walking days over shorter distances to avoid over-exertion — what is the shortest single day\'s distance in the itinerary?',o:['7km','10km','12km','15km'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many days of walking are included across the Easy Coastal Camino\'s 21-day itinerary?',o:['13','16','19','21'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Easy Camino from Tui covers 116km — why is that distance significant for pilgrims?',o:['It\'s the shortest Camino route available','It covers the minimum distance required to qualify for the Compostela pilgrim passport','It avoids all hills','It\'s the only route with a night in Portugal'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many days of walking make up the 116km Easy Camino from Tui?',o:['6','7','8','9'],a:3},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Atlantic Route Coastal Walking Holiday follows Portugal\'s northwest coast, nicknamed what because of its lush vegetation?',o:['The Costa Verde (Green Coast)','The Costa Brava','The Costa del Sol','The Silver Coast'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which town at the very top of Portugal, just across the river from Spain, does the Atlantic Route Coastal Walking Holiday end in?',o:['Vila Praia de Âncora','Viana do Castelo','Caminha','A Guarda'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Camino Finisterre extends the pilgrimage beyond Santiago de Compostela to Cape Finisterre — what is this stretch of Galician coastline traditionally known as?',o:['The Coast of Light','The Costa da Morte (Coast of Death)','The Silver Coast','The Emerald Coast'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Danube Bargain Tour from Passau to Vienna, cyclists are encouraged to visit Engelszell Abbey on Day 2 — what has the monastery produced for centuries according to traditional recipes?',o:['Cheese','Liqueur','Bread','Wine'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the final cycling day of the Danube Bargain Tour, riders pass through the Wachau, a region famous for which product?',o:['Olive oil','Sparkling white wines','Craft beer','Chocolate'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Camino Primitivo is considered the "original" Camino route, first walked in the 9th century by which king of Asturias?',o:['King Alfonso II','King Ferdinand III','King Sancho I','King Ramiro I'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'At Melide, the Camino Primitivo joins which more popular, busier Camino route for the final stretch to Santiago?',o:['The Portuguese Way','The French Way','The Northern Way','The English Way'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Other Side of Douro walking holiday includes a tour and tasting session on Day 5 at which winery?',o:['Quinta do Tedo','Quinta do Noval','Taylor\'s','Graham\'s'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'Besides its vineyards, which UNESCO World Heritage-listed wine region does The Other Side of Douro walking holiday explore from its quieter, rural south bank?',o:['The Alto Douro wine region','The Rioja wine region','The Douro Litoral','The Dão wine region'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Portuguese Luxury Coastal Camino upgrades accommodation to include Pousadas and Paradores — what were these historic buildings typically before becoming luxury hotels?',o:['Palaces, fortresses, and monasteries','Farmhouses and mills','Lighthouses','Railway stations'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Portuguese Luxury Coastal Camino, what star-rating hotel awaits pilgrims on their final night in Santiago de Compostela?',o:['3-star','4-star','5-star','Boutique guesthouse'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Portuguese Coastal Way from Baiona starts in a fishing port protected from the open sea by a bay, in which Spanish region?',o:['Costa Brava','Rías Baixas','Costa Verde','Basque Coast'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Lima Valley Cycling Holiday highlights the region\'s alliance of nature and man-made landmarks — alongside medieval monasteries, what Roman-era structures feature on the route?',o:['Aqueducts','Roman bridges','Amphitheatres','Roman baths'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which light, slightly sparkling regional wine is highlighted as part of the Lima Valley Cycling Holiday?',o:['Vinho verde','Port wine','Madeira','Moscatel'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which UNESCO World Heritage wine region does the Highlights of Northern Portugal itinerary begin in?',o:['Douro Valley','Alentejo','Dão','Vinho Verde region'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Peneda-Gerês National Park section of Highlights of Northern Portugal is a certified what?',o:['National Trust site','World Biosphere Reserve','Ramsar wetland','Geopark'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'What is the minimum group size required for Highlights of Northern Portugal?',o:['From 1 person','From 2 people','From 2 to 8 people','From 4 people'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'Flavours of the Camino and Costa Verde begins in which charming riverside town, following part of the ancient Way of St. James?',o:['Ponte de Lima','Viana do Castelo','Valença do Minho','Braga'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'After reaching the fortress town of Valença do Minho, which direction does Flavours of the Camino and Costa Verde turn to follow the coast back to Viana do Castelo?',o:['North','South','East','It returns by train'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The High Trails of the Bernese Oberland Guided Hike follows a section of which long-distance Swiss trail?',o:['The Tour du Mont Blanc','The Alpine Pass Route','The Via Alpina','The Haute Route'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which is the highest of the three major peaks visible on the High Trails of the Bernese Oberland Guided Hike?',o:['Eiger (3970m)','Jungfrau (4158m)','Finsteraarhorn (4274m)','Mönch (4107m)'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Guided Mont Blanc Rambler Hike crosses how many countries in the European Alps?',o:['Two','Three','Four','Five'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On which day of the Guided Mont Blanc Rambler Hike do walkers ascend the Grand Col Ferret path?',o:['Day 3','Day 5','Day 6','Day 7'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Food Lover\'s Spanish Camino begins in which Basque city, home to the Guggenheim Museum?',o:['San Sebastián','Bilbao','Pamplona','Vitoria-Gasteiz'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which two-Michelin-starred restaurant, run by chef Nacho Manzano, do guests dine at on the Food Lover\'s Spanish Camino?',o:['A Tafona','Casa Marcial','Etxebarri','Arzak'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Food Lover\'s Spanish Camino, guests are treated to "queimada" on their rest day — what is this Galician tradition?',o:['A folk dance performed at dinner','A ritual drink of coffee infused with orujo liqueur','A bread-baking ceremony','A blessing of the pilgrims\' shells'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Walkers must cover at least how many kilometres of the Camino to qualify for the official Compostela certificate — the reason the Camino Frances itinerary starts at Sarria?',o:['80km','100km','115km','150km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Walking in Puglia, Italy begins and ends in which Baroque-style regional capital of the Salento?',o:['Bari','Lecce','Taranto','Brindisi'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The ancient cave dwellings explored on a guided visit in Matera, inhabited since Paleolithic times, are known as what?',o:['Trulli','Sassi','Nuraghe','Dammusi'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The distinctive dry-stone conical dwellings found in UNESCO-listed Alberobello are known as what?',o:['Sassi','Trulli','Dammusi','Nuraghe'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Walking in Puglia visits the "white city" of Ostuni — why does it carry that nickname?',o:['Its beaches are made of white sand','Its buildings are whitewashed and cluster on a hillside','It\'s famous for white wine','Its cathedral is built from white marble'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Mont Blanc Self Guided Hike, which local cheese can walkers buy fresh from shepherds in the pastures below the passes?',o:['Comté','Beaufort','Reblochon','Gruyère'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Unlike the Guided Mont Blanc Rambler Hike, how is the Mont Blanc Self Guided Hike itinerary structured?',o:['Fully guided with a bilingual guide throughout','Self-guided, with a waymarked route and navigational app','Guided only on the final day','Guided only through Italy'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Walking in the Dordogne Valley itinerary explores Sarlat, known as the capital of which colourful regional nickname?',o:['The Black Perigord','The Green Perigord','The White Perigord','The Purple Perigord'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'Beynac and Domme, visited on the Walking in the Dordogne Valley trip, are both listed among which official French list?',o:['UNESCO World Heritage Sites','The Most Beautiful Villages of France','Grand Site de France','Villes et Villages Fleuris'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On Top of Amsterdam - Bike and Barge, which Dutch island, home to thousands of sheep, do cyclists visit?',o:['Ameland','Texel','Terschelling','Vlieland'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which town on the Top of Amsterdam - Bike and Barge route is known as the capital of Dutch cheese, with its own cheese market?',o:['Volendam','Hoorn','Alkmaar','Enkhuizen'],a:2},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Trans Austria Salzburg to Vienna cycle tour begins with a city walk following the footsteps of which composer?',o:['Johann Strauss','Wolfgang Amadeus Mozart','Anton Bruckner','Joseph Haydn'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which composer\'s powerful organ can be seen in the Old Cathedral in Linz on the Trans Austria Salzburg to Vienna tour?',o:['Mozart','Bruckner','Strauss','Beethoven'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Douro International Park and Coa Valley Hiking & Culture trip includes a night visit to a site showcasing what kind of ancient artwork?',o:['Roman mosaics','Paleolithic rock art','Byzantine frescoes','Medieval frescoes'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which endangered bird species is highlighted as inhabiting the cliffs of the Douro International Natural Park?',o:['Golden eagle','Egyptian vulture','Peregrine falcon','White stork'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Camino Portuguese from Porto to Santiago reaches its highest point at Alto da Portela Grande, rewarding walkers with views over which valley?',o:['The Douro Valley','The Lima Valley','The Minho Valley','The Tagus Valley'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Heart & Soul of the Douro Valley Wine Walking Tour ends in Porto, at the port wine cellars of which riverside district?',o:['Vila Nova de Gaia','Foz do Douro','Ribeira','Matosinhos'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'On the Douro Valley e-Bike Cycling Trip, which historic route is the N2 road compared to, described as "Portugal\'s answer to"?',o:['The Silk Road','Route 66','The Pan-American Highway','The Great Ocean Road'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'What model of electric bike is provided on the Douro Valley e-Bike Cycling Trip?',o:['Trek Allant+7','Trek Marlin 6','Specialized Turbo Vado','Giant Explore E+'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does Cycling the Portuguese Coastal Way to Santiago cover between Porto and Santiago de Compostela?',o:['235km','259km','280km','300km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On Cycling the Portuguese Coastal Way to Santiago, cyclists join the Central Camino after reaching which Galician city?',o:['Baiona','Vigo','Pontevedra','Padron'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On Cycling the Portuguese Coastal Way to Santiago, which town do cyclists reach on Day 4, a 46km ride from Viana do Castelo?',o:['Baiona','Oia','Vigo','Caminha'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which e-bike model can be added to Cycling the Portuguese Coastal Way to Santiago, at a cost of R5015 per bike?',o:['Trek Allant 7','Trek Marlin 6','Specialized Turbo Vado','Giant Explore E+'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Upgrade version of Cycling the Portuguese Coastal Way to Santiago swaps the standard 3-star accommodation for which tier?',o:['3-star','4-star','5-star','Boutique guesthouse'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does Cycling the Portuguese Camino de Santiago cover between Porto and Santiago de Compostela?',o:['224km','244km','264km','280km'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Which model of mountain bike is included in the bike rental for Cycling the Portuguese Camino de Santiago?',o:['Trek Allant 7','Trek Marlin 6 with 29" wheels','Specialized Rockhopper','Giant Talon'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'On Day 2 of Cycling the Portuguese Camino de Santiago, cyclists ride 54km from Porto to which town?',o:['Ponte de Lima','Barcelos','Valença','Pontevedra'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Sections of Cycling the Portuguese Camino de Santiago follow an ancient Roman road — what other Roman-era structure do cyclists cross many of along the way?',o:['Roman aqueducts','Roman bridges','Roman amphitheatres','Roman baths'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'How many kilometres does the Atlantic Coast Cycling Tour cover in total?',o:['259km','280km','300km','315.8km'],a:3},
+  {c:'Sports World',sub:'Adventure Travel',q:'The Atlantic Coast Cycling Tour begins in the fortress town of Valença — which river do cyclists follow toward Caminha, forming a natural border with Spain?',o:['River Douro','River Minho','River Lima','River Tagus'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:'Near Aveiro, the Atlantic Coast Cycling Tour passes through the Ria de Aveiro lagoons — alongside colourful fishing boats, which bird species might cyclists spot?',o:['Flamingos','Pelicans','Storks','Herons'],a:0},
+  {c:'Sports World',sub:'Adventure Travel',q:'On Day 7 of the Atlantic Coast Cycling Tour, which coastal area do cyclists explore alongside Aveiro?',o:['Costa Verde','Costa Nova','Costa Brava','Costa do Sol'],a:1},
+  {c:'Sports World',sub:'Adventure Travel',q:"What is the longest single day's cycling distance on the Atlantic Coast Cycling Tour, ridden en route to Aveiro?",o:['47.7km','55.2km','58.3km','62.1km'],a:3},
   {c:'Sports World',sub:'Football',q:'Which African country hosted the 2010 FIFA World Cup?',o:['Egypt','Nigeria','Morocco','South Africa'],a:3},
   {c:'Sports World',sub:'Golf',q:'Which of these is NOT a golf Major championship?',o:['The Masters','The Open Championship','The Ryder Cup','PGA Championship'],a:2},
   {c:'Sports World',sub:'Rugby',q:'The Rugby World Cup is contested every how many years?',o:['Two','Three','Four','Five'],a:2},
@@ -215,59 +340,78 @@ const ALL=[
   {c:'Sports World',sub:'Football',q:'Spotify Camp Nou, home of FC Barcelona, is located in which city?',o:['Madrid','Seville','Valencia','Barcelona'],a:3},
   {c:'Sports World',sub:'Football',q:'The La Liga season typically runs from which months?',o:['August to May','September to June','July to April','October to July'],a:0},
   {c:'Sports World',sub:'Football',q:'Which stadium is home to Atlético Madrid?',o:['Santiago Bernabéu','Riyadh Air Metropolitano','Spotify Camp Nou','Mestalla'],a:1},
-  {c:'Travel Smart',q:'What does ISTAA stand for, of which Edusport is a proud member?',o:['International Sports Travel Agents Alliance','International Sports Travel Agencies Association','Institute of Sports Tourism and Accommodation in Africa','International Sports and Tourism Advisors Association'],a:1},
-  {c:'Travel Smart',q:'Edusport has been sending South Africans to the Rugby World Cup since which year?',o:['1999','2003','2007','2011'],a:2},
-  {c:'Travel Smart',q:'Why is it important to secure event tickets through official organisers?',o:['They are always the cheapest option','It guarantees authenticity and peace of mind','They can be refunded at any time','They include complimentary upgrades'],a:1},
-  {c:'Travel Smart',q:'What is "incentive travel" primarily designed to achieve?',o:['Offer last-minute discounted group rates','Provide athletes with competition support','Reward and motivate staff or clients aligned with business objectives','Replace traditional conference venues'],a:2},
-  {c:'Travel Smart',q:'A "tailor-made" sports travel package means it is:',o:['Always more expensive than standard packages','Pre-packaged with no changes allowed',"Customised to suit the client's unique travel requirements",'Only available to VIP clients'],a:2},
-  {c:'Travel Smart',q:'How many years of experience does Edusport have in sports travel?',o:['Over 10 years','Over 20 years','Over 25 years','Over 30 years'],a:3},
-  {c:'Travel Smart',q:'A VIP hospitality package at a sporting event typically adds:',o:['Guaranteed home team victory','Free airfare for the whole family','Priority boarding at all airports','Premium seating, catering and exclusive access'],a:3},
-  {c:'Travel Smart',q:'When advising a first-time sports traveller, what is the most important first step?',o:['Send them a brochure immediately','Book flights to secure the best price','Recommend the most popular package','Understand their goals, budget and preferred experience'],a:3},
-  {c:'Travel Smart',q:'Which best describes a "group supporter tour"?',o:['A private charter for VIP guests only','An organised trip for fans travelling together to support their team','A corporate team-building exercise','A travel package for athletes and coaches'],a:1},
-  {c:'Travel Smart',q:'What are the four key components Edusport handles in a sports travel package?',o:['Flights, meals, sightseeing and tickets','Flights, accommodation, transfers and tickets','Visas, flights, meals and hotels','Accommodation, meals, transfers and insurance'],a:1},
-  {c:'Travel Smart',q:'What travel document do South African clients need for a La Liga match in Spain?',o:['No visa required','A Schengen Visa','A UK visitor visa','A Spanish work permit'],a:1},
-  {c:'Travel Smart',q:'In La Liga host cities like Madrid and Barcelona, when does dinner service typically begin?',o:['Around 17:00','Around 18:00','Around 20:00 onwards','Around 22:00 onwards'],a:2},
-  {c:'Soft Skills',q:"A client calls to say match tickets haven't arrived three days before travel. What is your first action?",o:['Tell them to check spam and call back','Transfer them to a manager immediately','Acknowledge their concern, apologise for the stress, and immediately investigate','Advise that tickets are always issued close to the event'],a:2},
-  {c:'Soft Skills',q:'Which best describes "active listening" in a client interaction?',o:['Talking more than the client to show expertise','Giving full attention, asking clarifying questions and reflecting back','Nodding along while preparing your response','Waiting for the client to finish before responding'],a:1},
-  {c:'Soft Skills',q:'A client requests a package outside your standard offering. What is the best approach?',o:['Tell them it is not possible','Refer them to a competitor','Offer the closest standard package without asking further questions','Explore whether you can customise something to meet their needs'],a:3},
-  {c:'Soft Skills',q:"You discover you have made an error in a client's hotel booking. What do you do?",o:['Wait and see if they notice','Fix it quietly and say nothing','Proactively inform the client, apologise and present a solution','Blame the hotel and move on'],a:2},
-  {c:'Soft Skills',q:'What is "upselling" in a travel sales context?',o:['Overcharging a client without their knowledge','Adding hidden fees to a booking','Selling unnecessary add-ons to increase revenue',"Suggesting a higher-value option that genuinely enhances the client's experience"],a:3},
-  {c:'Soft Skills',q:'A client returns from a trip disappointed with one aspect. What is the ideal response?',o:['Immediately offer a discount on their next booking','Thank them for the feedback, acknowledge their experience and explore improvements','Defend the service and explain why it was acceptable','Forward the complaint to the supplier without following up'],a:1},
-  {c:'Soft Skills',q:'Which is the most effective way to build long-term client relationships?',o:['Sending promotional emails as often as possible','Offering the lowest prices every time','Consistent, personalised follow-up and genuine interest in their experience','Only contacting clients when there is a new package to sell'],a:2},
-  {c:'Soft Skills',q:'A client calls in a panic because their flight is cancelled on the day of travel. What tone should you use?',o:['Businesslike and procedural to show professionalism','Apologetic but unable to assist further','Calm, empathetic and solution-focused','Urgent and anxious so they feel understood'],a:2},
-  {c:'Soft Skills',q:'What does "managing client expectations" mean?',o:['Promising more than you can deliver to win the sale','Clearly communicating what is included, what is not, and what clients can realistically expect','Only sharing good news with clients','Letting clients assume whatever they wish'],a:1},
-  {c:'Soft Skills',q:'A colleague is struggling with a large group booking and you have capacity. What do you do?',o:['Focus on your own work; it is not your responsibility','Tell your manager your colleague is struggling','Take over the booking without informing your colleague','Offer to assist and collaborate so the client is not affected'],a:3},
-  {c:'Soft Skills',q:"Before saying anything to a returning client, what should a consultant check first, according to Edusport's profiling guide?",o:['The current exchange rate','Their FreshCRM profile','Today\'s flight prices','The weather at the destination'],a:1},
-  {c:'Soft Skills',q:'What mainly separates an "order-taker" from a "travel consultant" in the profiling guide?',o:['How many languages they speak','Whether they check past trips and preferences on file before quoting','How fast they can process a booking','Whether they work weekends'],a:1},
-  {c:'Soft Skills',q:'When quoting flights, what should a consultant do rather than simply booking the cheapest fare?',o:['Always book the cheapest fare to save time','Present the trade-off between price and flexibility and let the client choose','Book the most expensive fare to maximise commission','Ask a manager to decide'],a:1},
-  {c:'Soft Skills',q:"According to Edusport's profiling guide, which of these is a red flag on a group booking?",o:['A client who has travelled with Edusport before','No single point of contact identified for the group','A client asking about ticket options','A group travelling to a repeat annual event'],a:1},
-  {c:'Soft Skills',q:'Which of the "Six Profile Pillars" covers whether a client repeats the same event every year or refers friends to Edusport?',o:['Past Travel History','Where Edusport Adds Value','Loyalty & Relationship Signals','The Emotional Stakes'],a:2},
-  {c:'Soft Skills',q:'What should a consultant do after every client interaction, according to the profiling guide?',o:['Nothing, unless the client complains','Log the trip, new preferences and any issues into FreshCRM','Wait for the client to follow up first','Only log the booking reference number'],a:1},
-  {c:'Soft Skills',q:'Which trip type does the profiling guide say should focus on visas, passports, insurance and multi-week stays?',o:['Local / Regional Fixture','Touring / Away Trip','International Tournament','Multi-Day Festival Event'],a:2},
-  {c:'Soft Skills',q:"According to the profiling guide, what is the richest data point available before a client's call even starts?",o:['Their social media activity','Their existing FreshCRM profile and history','The destination\'s weather forecast','Current flight availability'],a:1},
-  {c:'Soft Skills',q:'What question does the profiling guide suggest asking to uncover the emotional stakes of a trip?',o:['"What is your budget?"','"How many people are travelling?"','"What\'s the story behind this trip?"','"Have you booked with us before?"'],a:2},
-  {c:'Soft Skills',q:'Re-asking a client for dietary needs or preferences already logged in FreshCRM is best described as:',o:['Good practice to double-check details','A red flag, since it reads as not paying attention','Required for every booking regardless of history','Only necessary for new clients'],a:1},
-  {c:'Soft Skills',q:"When reviewing a client's Past Travel History, what does the profiling guide say is the strongest signal of what they need this time?",o:['Their current budget','Past experience, good or bad, with previous trips','How many people are travelling','The destination they are asking about'],a:1},
-  {c:'Soft Skills',q:'When establishing "Who You\'re Actually Dealing With" on a group booking, what does the guide say is worth identifying early?',o:["The group's preferred airline","Who's making the decision versus who's simply along for the trip","The exact headcount only","Whether they have travelled before"],a:1},
-  {c:'Soft Skills',q:"According to the guide, where does Edusport's actual value (and margin) often sit, beyond just the event itself?",o:['Only in the ticket price','Accommodation, transport and the extras around the trip','Loyalty points','The booking fee'],a:1},
-  {c:'Soft Skills',q:'Which trip type does the guide associate with "simple logistics, short turnaround, possible day-trip option"?',o:['International Tournament','Multi-Day Festival Event','Local / Regional Fixture','Touring / Away Trip'],a:2},
-  {c:'Soft Skills',q:'Which trip type does the guide say focuses on ticket packages across several days, hospitality options and a flexible itinerary?',o:['Local / Regional Fixture','Multi-Day Festival Event','Touring / Away Trip','International Tournament'],a:1},
-  {c:'Soft Skills',q:'According to the Flights section, what varies by fare class and should be known before quoting a price to a client?',o:['Only the ticket price','Change and cancellation fees, refund eligibility, baggage allowance and name change policies','The airline\'s logo colours','Nothing, all fares work the same way'],a:1},
-  {c:'Soft Skills',q:"Which of these is listed as a red flag in the profiling guide?",o:['A client who confirms their own travel dates', 'A tight timeline with no flexibility acknowledged by the customer', 'A client who asks for a quote in writing', 'A group booking with a confirmed single point of contact'],a:1},
-  {c:'Soft Skills',q:'Treating a returning customer like a first-time enquiry is described in the guide as:',o:['Standard best practice', 'A red flag to qualify before going further', 'Required for compliance reasons', 'Only a concern for new consultants'],a:1},
-  {c:'Soft Skills',q:'According to the guide, what might a loyal, high-value traveller happily do if the choice is actually put in front of them?',o:['Always choose the cheapest fare regardless', 'Pay more for flexibility, comfort or a direct route', 'Book through a competitor instead', 'Skip the trip entirely'],a:1},
-  {c:'Soft Skills',q:"According to the guide's \"Why This Matters\" section, what happens after fans talk to other fans following a well-handled trip?",o:['Nothing changes', 'It creates referral chains into their travel group, friends and next booking', 'It only affects that one traveller', 'It reduces future bookings'],a:1},
-  {c:'Soft Skills',q:'According to the "On The Line" phone playbook, what is the golden rule for knowing you have actually listened on a call?',o:['You took detailed written notes','You can repeat the call back in one sentence','The call lasted at least five minutes','You asked at least three questions'],a:1},
-  {c:'Soft Skills',q:'Which phrase does the phone playbook say you should never say to a customer?',o:['"Let me find that out for you"','"That is not my client" or "that is not my issue"','"I will take ownership of getting this sorted"','"Give me a moment to pull that up"'],a:1},
-  {c:'Soft Skills',q:'For a new client with no trip history on file, what does the phone playbook say the call itself has to do?',o:['Rush to quote the cheapest option','Build the trust a returning customer already has','Transfer them to a senior consultant','Skip the introduction and get straight to pricing'],a:1},
-  {c:'Soft Skills',q:'For a repeat client who "expects to be known," what does the phone playbook say re-asking logged preferences should be treated as?',o:['Good customer service','A miss, not a formality','Required for every call','Only necessary once a year'],a:1},
-  {c:'Soft Skills',q:'On a follow-up call about something already in motion, what should you lead with?',o:['"Can I take your details again?"','The status of what is already underway','A new upsell offer','A request for their booking reference only'],a:1},
-  {c:'Soft Skills',q:'When handling an angry client on the phone, what does the playbook say to do first?',o:['Explain the process before anything else','Let them get it out, then acknowledge the frustration is valid before resolving it','Defend the decision that caused the issue','Transfer the call immediately'],a:1},
-  {c:'Soft Skills',q:'For a complaint or issue call, what does the phone playbook say the focus should be?',o:['Explain company policy first','Acknowledge before you explain, resolve or escalate, never leave the customer holding the problem','End the call as quickly as possible','Offer a discount immediately'],a:1},
-  {c:'Soft Skills',q:'For a payment or invoicing call, what does the phone playbook say to do before ending the call?',o:['Nothing extra is needed','Confirm amounts and dates back to the customer','Immediately process a refund','Transfer to accounts'],a:1},
-  {c:'Soft Skills',q:'For a loyalty or repeat traveller check-in call, what does the playbook say a consultant should do?',o:['Wait for the customer to ask what is coming up','Bring the calendar to them proactively','Only call if there is a complaint','Avoid mentioning future events'],a:1},
-  {c:'Soft Skills',q:'Which of these is listed as a red flag in the "On The Line" phone playbook?',o:['A call that ends with a clear recap of what was agreed','A call ending without a clear recap of what was agreed and who owns the next step','A consultant taking ownership of an issue','A transfer briefed to the receiving colleague first'],a:1},
-  {c:'Soft Skills',q:'According to the phone playbook\'s "Why This Matters" section, why do most complaints actually escalate?',o:['Because the original issue was too complex','Because the customer felt passed around, not because of the original issue','Because the consultant spoke too quickly','Because the call was too short'],a:1},
+  {c:'Travel Smart',sub:'Visas',q:'Does Edusport handle visa applications on behalf of clients?',o:['Yes, always as part of the package','No, that sits with the client, Edusport provides guidance only','Only for international tournaments','Only if requested at booking stage'],a:1},
+  {c:'Travel Smart',sub:'Visas',q:'According to the Flight Rules guide, why is it worth sending clients the visa guide early?',o:['It is a legal requirement','Lead times for some visa categories run into months','It replaces the need for a passport','It guarantees visa approval'],a:1},
+  {c:'Travel Smart',sub:'Visas',q:'Besides visas, what other entry requirement sits outside the flight itself but can still stop a client boarding?',o:['Frequent flyer status','Health requirements, such as proof of vaccination','Seat preference','Currency declarations'],a:1},
+  {c:'Travel Smart',sub:'Visas',q:'Which vaccination is most commonly required by name in the Flight Rules guide\'s Visas & Health section?',o:['Yellow fever','Measles','Hepatitis B','Rabies'],a:0},
+  {c:'Travel Smart',sub:'Visas',q:'Where are health requirements like vaccination proof typically checked?',o:['Only if the client volunteers the information','At the border, not just recommended beforehand','Only on the return leg','By the travel insurer'],a:1},
+  {c:'Travel Smart',sub:'Visas',q:'Who is responsible for confirming and arranging health requirements for a trip, according to the guide?',o:['Edusport, as part of the booking','The client, the same as with visas','The destination country\'s embassy only','The airline'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'What can cause an airline to deny boarding even over something that looks trivial, like a missing middle initial?',o:['A late arrival at the gate','A mismatch between the booking name and the travel document','An expired boarding pass app','Checking in online instead of at the counter'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'Many destinations require passport validity of at least how many months beyond the return date?',o:['Three months','Six months','Nine months','Twelve months'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'International flights typically close check-in how long before departure?',o:['15-30 minutes','60-90 minutes','2-3 hours','Check-in never closes early'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'Where must spare lithium batteries and power banks travel, and why?',o:['Checked baggage, to protect them from damage','Carry-on, due to fire risk','Either is fine','Neither is allowed on flights'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'What mainly determines how much checked baggage a client\'s fare includes?',o:['The airline\'s general policy, it is the same for everyone','The fare class they booked, budget vs flexible','The destination country','The time of year'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'What does the Flight Rules guide say should happen with sports equipment or oversized items?',o:['They are automatically covered by standard baggage allowance','They should be declared and paid for in advance at booking stage','They can only be added at the airport','They are never allowed on flights'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'If a traveller misses the first flight in a multi-leg itinerary, what can happen to the rest of the booking?',o:['Nothing, the remaining flights are unaffected','The airline can automatically cancel every remaining flight, including the return','Only the return flight is affected','The airline rebooks them automatically for free'],a:1},
+  {c:'Travel Smart',sub:'Flight Tips and Rules',q:'Does booking a group together guarantee they all sit together on the plane?',o:['Yes, always','No, seat allocation is often separate from the booking and needs active management','Only on flexible fares','Only for groups of four or more'],a:1},
+  {c:'Travel Smart',sub:'General Travel Tips',q:'Why is hydration worth reminding clients about on long-haul flights?',o:['Airline meals are salty','Cabin air is dry, and it adds up on long-haul','It prevents jet lag entirely','Airlines charge for water'],a:1},
+  {c:'Travel Smart',sub:'General Travel Tips',q:'What does the guide say a short layover is a reason to do?',o:['Relax, since the flights are already booked','Travel light through security, not relax about connection timing','Skip security entirely','Upgrade to a faster boarding group'],a:1},
+  {c:'Travel Smart',sub:'General Travel Tips',q:'For clients travelling to compete or attend something physically demanding, what does the guide recommend around jet lag?',o:['Book the cheapest flight regardless of timing','Arrive a day or two ahead of the event where the itinerary allows it','Take sleeping tablets on the flight','Avoid long-haul flights entirely'],a:1},
+  {c:'Travel Smart',sub:'General Travel Tips',q:'Where should boarding passes, passports and printed confirmations stay through security and boarding?',o:['In checked luggage for safekeeping','Easily accessible, not buried in a bag or checked luggage','With the tour group leader only','Scanned and emailed only, no physical copies needed'],a:1},
+  {c:'Travel Smart',sub:'General Travel Tips',q:'According to the guide, what is the agent\'s job when it comes to fare choice?',o:['Always book the cheapest fare available','Match the fare to what the client needs, then explain the trade-offs before they book','Let the client figure out fare rules themselves','Only discuss fares if the client asks'],a:1},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'What does ISTAA stand for, of which Edusport is a proud member?',o:['International Sports Travel Agents Alliance','International Sports Travel Agencies Association','Institute of Sports Tourism and Accommodation in Africa','International Sports and Tourism Advisors Association'],a:1},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'Edusport has been sending South Africans to the Rugby World Cup since which year?',o:['1999','2003','2007','2011'],a:2},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'Why is it important to secure event tickets through official organisers?',o:['They are always the cheapest option','It guarantees authenticity and peace of mind','They can be refunded at any time','They include complimentary upgrades'],a:1},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'What is "incentive travel" primarily designed to achieve?',o:['Offer last-minute discounted group rates','Provide athletes with competition support','Reward and motivate staff or clients aligned with business objectives','Replace traditional conference venues'],a:2},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'A "tailor-made" sports travel package means it is:',o:['Always more expensive than standard packages','Pre-packaged with no changes allowed',"Customised to suit the client's unique travel requirements",'Only available to VIP clients'],a:2},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'How many years of experience does Edusport have in sports travel?',o:['Over 10 years','Over 20 years','Over 25 years','Over 30 years'],a:3},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'A VIP hospitality package at a sporting event typically adds:',o:['Guaranteed home team victory','Free airfare for the whole family','Priority boarding at all airports','Premium seating, catering and exclusive access'],a:3},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'When advising a first-time sports traveller, what is the most important first step?',o:['Send them a brochure immediately','Book flights to secure the best price','Recommend the most popular package','Understand their goals, budget and preferred experience'],a:3},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'Which best describes a "group supporter tour"?',o:['A private charter for VIP guests only','An organised trip for fans travelling together to support their team','A corporate team-building exercise','A travel package for athletes and coaches'],a:1},
+  {c:'Soft Skills',sub:'Sales & Company Knowledge',q:'What are the four key components Edusport handles in a sports travel package?',o:['Flights, meals, sightseeing and tickets','Flights, accommodation, transfers and tickets','Visas, flights, meals and hotels','Accommodation, meals, transfers and insurance'],a:1},
+  {c:'Sports World',sub:'Football',q:'What travel document do South African clients need for a La Liga match in Spain?',o:['No visa required','A Schengen Visa','A UK visitor visa','A Spanish work permit'],a:1},
+  {c:'Sports World',sub:'Football',q:'In La Liga host cities like Madrid and Barcelona, when does dinner service typically begin?',o:['Around 17:00','Around 18:00','Around 20:00 onwards','Around 22:00 onwards'],a:2},
+  {c:'Soft Skills',sub:'Client Service',q:"A client calls to say match tickets haven't arrived three days before travel. What is your first action?",o:['Tell them to check spam and call back','Transfer them to a manager immediately','Acknowledge their concern, apologise for the stress, and immediately investigate','Advise that tickets are always issued close to the event'],a:2},
+  {c:'Soft Skills',sub:'Client Service',q:'Which best describes "active listening" in a client interaction?',o:['Talking more than the client to show expertise','Giving full attention, asking clarifying questions and reflecting back','Nodding along while preparing your response','Waiting for the client to finish before responding'],a:1},
+  {c:'Soft Skills',sub:'Client Service',q:'A client requests a package outside your standard offering. What is the best approach?',o:['Tell them it is not possible','Refer them to a competitor','Offer the closest standard package without asking further questions','Explore whether you can customise something to meet their needs'],a:3},
+  {c:'Soft Skills',sub:'Client Service',q:"You discover you have made an error in a client's hotel booking. What do you do?",o:['Wait and see if they notice','Fix it quietly and say nothing','Proactively inform the client, apologise and present a solution','Blame the hotel and move on'],a:2},
+  {c:'Soft Skills',sub:'Client Service',q:'What is "upselling" in a travel sales context?',o:['Overcharging a client without their knowledge','Adding hidden fees to a booking','Selling unnecessary add-ons to increase revenue',"Suggesting a higher-value option that genuinely enhances the client's experience"],a:3},
+  {c:'Soft Skills',sub:'Client Service',q:'A client returns from a trip disappointed with one aspect. What is the ideal response?',o:['Immediately offer a discount on their next booking','Thank them for the feedback, acknowledge their experience and explore improvements','Defend the service and explain why it was acceptable','Forward the complaint to the supplier without following up'],a:1},
+  {c:'Soft Skills',sub:'Client Service',q:'Which is the most effective way to build long-term client relationships?',o:['Sending promotional emails as often as possible','Offering the lowest prices every time','Consistent, personalised follow-up and genuine interest in their experience','Only contacting clients when there is a new package to sell'],a:2},
+  {c:'Soft Skills',sub:'Client Service',q:'A client calls in a panic because their flight is cancelled on the day of travel. What tone should you use?',o:['Businesslike and procedural to show professionalism','Apologetic but unable to assist further','Calm, empathetic and solution-focused','Urgent and anxious so they feel understood'],a:2},
+  {c:'Soft Skills',sub:'Client Service',q:'What does "managing client expectations" mean?',o:['Promising more than you can deliver to win the sale','Clearly communicating what is included, what is not, and what clients can realistically expect','Only sharing good news with clients','Letting clients assume whatever they wish'],a:1},
+  {c:'Soft Skills',sub:'Client Service',q:'A colleague is struggling with a large group booking and you have capacity. What do you do?',o:['Focus on your own work; it is not your responsibility','Tell your manager your colleague is struggling','Take over the booking without informing your colleague','Offer to assist and collaborate so the client is not affected'],a:3},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"Before saying anything to a returning client, what should a consultant check first, according to Edusport's profiling guide?",o:['The current exchange rate','Their FreshCRM profile','Today\'s flight prices','The weather at the destination'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'What mainly separates an "order-taker" from a "travel consultant" in the profiling guide?',o:['How many languages they speak','Whether they check past trips and preferences on file before quoting','How fast they can process a booking','Whether they work weekends'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'When quoting flights, what should a consultant do rather than simply booking the cheapest fare?',o:['Always book the cheapest fare to save time','Present the trade-off between price and flexibility and let the client choose','Book the most expensive fare to maximise commission','Ask a manager to decide'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"According to Edusport's profiling guide, which of these is a red flag on a group booking?",o:['A client who has travelled with Edusport before','No single point of contact identified for the group','A client asking about ticket options','A group travelling to a repeat annual event'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Which of the "Six Profile Pillars" covers whether a client repeats the same event every year or refers friends to Edusport?',o:['Past Travel History','Where Edusport Adds Value','Loyalty & Relationship Signals','The Emotional Stakes'],a:2},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'What should a consultant do after every client interaction, according to the profiling guide?',o:['Nothing, unless the client complains','Log the trip, new preferences and any issues into FreshCRM','Wait for the client to follow up first','Only log the booking reference number'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Which trip type does the profiling guide say should focus on visas, passports, insurance and multi-week stays?',o:['Local / Regional Fixture','Touring / Away Trip','International Tournament','Multi-Day Festival Event'],a:2},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"According to the profiling guide, what is the richest data point available before a client's call even starts?",o:['Their social media activity','Their existing FreshCRM profile and history','The destination\'s weather forecast','Current flight availability'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'What question does the profiling guide suggest asking to uncover the emotional stakes of a trip?',o:['"What is your budget?"','"How many people are travelling?"','"What\'s the story behind this trip?"','"Have you booked with us before?"'],a:2},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Re-asking a client for dietary needs or preferences already logged in FreshCRM is best described as:',o:['Good practice to double-check details','A red flag, since it reads as not paying attention','Required for every booking regardless of history','Only necessary for new clients'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"When reviewing a client's Past Travel History, what does the profiling guide say is the strongest signal of what they need this time?",o:['Their current budget','Past experience, good or bad, with previous trips','How many people are travelling','The destination they are asking about'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'When establishing "Who You\'re Actually Dealing With" on a group booking, what does the guide say is worth identifying early?',o:["The group's preferred airline","Who's making the decision versus who's simply along for the trip","The exact headcount only","Whether they have travelled before"],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"According to the guide, where does Edusport's actual value (and margin) often sit, beyond just the event itself?",o:['Only in the ticket price','Accommodation, transport and the extras around the trip','Loyalty points','The booking fee'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Which trip type does the guide associate with "simple logistics, short turnaround, possible day-trip option"?',o:['International Tournament','Multi-Day Festival Event','Local / Regional Fixture','Touring / Away Trip'],a:2},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Which trip type does the guide say focuses on ticket packages across several days, hospitality options and a flexible itinerary?',o:['Local / Regional Fixture','Multi-Day Festival Event','Touring / Away Trip','International Tournament'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'According to the Flights section, what varies by fare class and should be known before quoting a price to a client?',o:['Only the ticket price','Change and cancellation fees, refund eligibility, baggage allowance and name change policies','The airline\'s logo colours','Nothing, all fares work the same way'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"Which of these is listed as a red flag in the profiling guide?",o:['A client who confirms their own travel dates', 'A tight timeline with no flexibility acknowledged by the customer', 'A client who asks for a quote in writing', 'A group booking with a confirmed single point of contact'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'Treating a returning customer like a first-time enquiry is described in the guide as:',o:['Standard best practice', 'A red flag to qualify before going further', 'Required for compliance reasons', 'Only a concern for new consultants'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:'According to the guide, what might a loyal, high-value traveller happily do if the choice is actually put in front of them?',o:['Always choose the cheapest fare regardless', 'Pay more for flexibility, comfort or a direct route', 'Book through a competitor instead', 'Skip the trip entirely'],a:1},
+  {c:'Soft Skills',sub:'Customer Profiling',q:"According to the guide's \"Why This Matters\" section, what happens after fans talk to other fans following a well-handled trip?",o:['Nothing changes', 'It creates referral chains into their travel group, friends and next booking', 'It only affects that one traveller', 'It reduces future bookings'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'According to the "On The Line" phone playbook, what is the golden rule for knowing you have actually listened on a call?',o:['You took detailed written notes','You can repeat the call back in one sentence','The call lasted at least five minutes','You asked at least three questions'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which phrase does the phone playbook say you should never say to a customer?',o:['"Let me find that out for you"','"That is not my client" or "that is not my issue"','"I will take ownership of getting this sorted"','"Give me a moment to pull that up"'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'For a new client with no trip history on file, what does the phone playbook say the call itself has to do?',o:['Rush to quote the cheapest option','Build the trust a returning customer already has','Transfer them to a senior consultant','Skip the introduction and get straight to pricing'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'For a repeat client who "expects to be known," what does the phone playbook say re-asking logged preferences should be treated as?',o:['Good customer service','A miss, not a formality','Required for every call','Only necessary once a year'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'On a follow-up call about something already in motion, what should you lead with?',o:['"Can I take your details again?"','The status of what is already underway','A new upsell offer','A request for their booking reference only'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'When handling an angry client on the phone, what does the playbook say to do first?',o:['Explain the process before anything else','Let them get it out, then acknowledge the frustration is valid before resolving it','Defend the decision that caused the issue','Transfer the call immediately'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'For a complaint or issue call, what does the phone playbook say the focus should be?',o:['Explain company policy first','Acknowledge before you explain, resolve or escalate, never leave the customer holding the problem','End the call as quickly as possible','Offer a discount immediately'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'For a payment or invoicing call, what does the phone playbook say to do before ending the call?',o:['Nothing extra is needed','Confirm amounts and dates back to the customer','Immediately process a refund','Transfer to accounts'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'For a loyalty or repeat traveller check-in call, what does the playbook say a consultant should do?',o:['Wait for the customer to ask what is coming up','Bring the calendar to them proactively','Only call if there is a complaint','Avoid mentioning future events'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which of these is listed as a red flag in the "On The Line" phone playbook?',o:['A call that ends with a clear recap of what was agreed','A call ending without a clear recap of what was agreed and who owns the next step','A consultant taking ownership of an issue','A transfer briefed to the receiving colleague first'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'According to the phone playbook\'s "Why This Matters" section, why do most complaints actually escalate?',o:['Because the original issue was too complex','Because the customer felt passed around, not because of the original issue','Because the consultant spoke too quickly','Because the call was too short'],a:1},
   {c:'Sports World',sub:'Formula 1',q:'How many laps make up the Abu Dhabi Grand Prix at Yas Marina Circuit?',o:['56','58','60','62'],a:1},
   {c:'Sports World',sub:'Formula 1',q:'What must South African passport holders arrange before travelling to the Abu Dhabi Grand Prix?',o:['Nothing, it is visa-free','A visa/e-visa via Etihad\'s Manage Booking section','A work permit','A police clearance certificate only'],a:1},
   {c:'Sports World',sub:'Formula 1',q:'What makes the Lusail International Circuit distinctive for the Qatar Grand Prix?',o:['It is the shortest circuit on the calendar','It is completely floodlit, so cars race through the desert at night','It has the most laps of any circuit','It only opened in 2026'],a:1},
@@ -305,7 +449,7 @@ const S={
   selected:null,revealed:false,awarded:[],
   timer:TIMER,timerDuration:TIMER,_iv:null,
   lbLoading:false,lbData:null,lbPosted:null,lbSetup:null,
-  sportsSub:null,playTopic:null,lbTopicFilter:'All',lbPeriod:'All-Time',
+  catSub:null,playTopic:null,lbTopicFilter:'All',lbPeriod:'All-Time',
   lbMgrOpen:false,lbMgrAuthed:false,lbMgrPassInput:'',lbMgrMsg:''
 };
 
@@ -315,7 +459,7 @@ function pickQ(){
   const active=S.categories;
   const pooled = ALL.filter(q=>{
     if(!active.includes(q.c)) return false;
-    if(q.c==='Sports World' && S.sportsSub) return q.sub===S.sportsSub;
+    if(active.length===1 && S.catSub) return q.sub===S.catSub;
     return true;
   });
   const m={};
@@ -328,10 +472,9 @@ function pickQ(){
 function currentTopicLabel(){
   if(S.categories.length === Object.keys(CAT).length) return 'Mixed';
   if(S.categories.length===1){
-    if(S.categories[0]==='Sports World') return S.sportsSub ? S.sportsSub : 'Sports World';
-    return S.categories[0];
+    return S.catSub ? S.catSub : S.categories[0];
   }
-  return S.categories.map(c=> c==='Sports World'&&S.sportsSub ? S.sportsSub : c).join(' + ');
+  return S.categories.join(' + ');
 }
 
 function stopT(){if(S._iv){clearInterval(S._iv);S._iv=null;}}
@@ -411,15 +554,18 @@ function rSetup(){
     </button>`;
   }).join('');
 
-  const sportsSubUI = S.categories.includes('Sports World') ? (() => {
-    const chips = ['Mixed', ...SPORTS_SUBS].map(s=>{
+  const subOptions = (S.categories.length===1 && SUBS[S.categories[0]]) ? SUBS[S.categories[0]] : null;
+  const subUI = subOptions ? (() => {
+    const catName = S.categories[0];
+    const col = CAT[catName].col;
+    const chips = ['Mixed', ...subOptions].map(s=>{
       const val = s==='Mixed' ? null : s;
-      const on = S.sportsSub === val;
-      return `<button class="cat-btn${on?' active':''}" onclick="setSportsSub(${val?`'${val}'`:'null'})"
-        style="${on?`background:#1A5BA622;border-color:#1A5BA6;color:#fff;`:''};font-size:12px;padding:9px 10px">${esc(s)}</button>`;
+      const on = S.catSub === val;
+      return `<button class="cat-btn${on?' active':''}" onclick="setCatSub(${val?`'${val}'`:'null'})"
+        style="${on?`background:${col}22;border-color:${col};color:#fff;`:''};font-size:12px;padding:9px 10px">${esc(s)}</button>`;
     }).join('');
-    return `<div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Sports World — Topic</div>
-    <div style="color:#475569;font-size:12px;margin-bottom:10px">Play the full mixed pool, or zoom into one sport for a focused round.</div>
+    return `<div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${esc(catName)} — Topic</div>
+    <div style="color:#475569;font-size:12px;margin-bottom:10px">Play the full mixed pool, or zoom into one topic for a focused round.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:24px">${chips}</div>`;
   })() : '';
 
@@ -449,7 +595,7 @@ function rSetup(){
 
     <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Categories</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px">${catBtns}</div>
-    ${sportsSubUI}
+    ${subUI}
 
     ${playersSection}
 
@@ -562,7 +708,7 @@ function rLeaderboard(){
     }).join('');
     const topicChips = topics.map(t=>{
       const on = S.lbTopicFilter===t;
-      return `<button class="cat-btn${on?' active':''}" onclick="setLbFilter('${esc(t).replace(/'/g,"\\'")}')"
+      return `<button class="cat-btn${on?' active':''}" onclick="setLbFilter('${esc(t).replace(/'/g,"\'")}')"
         style="${on?'background:#1A5BA622;border-color:#1A5BA6;color:#fff;':''};font-size:12px;padding:8px 10px;white-space:nowrap">${esc(t)}</button>`;
     }).join('');
 
@@ -622,7 +768,7 @@ function rLeaderboard(){
     const names = Array.from(new Set((S.lbData?S.lbData.entries:[]).map(e=>e.name))).sort((a,b)=>a.localeCompare(b));
     const nameRows = names.length ? names.map(n=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
       <span style="color:#e2e8f0;font-size:13px">${esc(n)}</span>
-      <button onclick="mgrRemoveName('${esc(n).replace(/'/g,"\\'")}')" style="background:rgba(239,68,68,0.12);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>
+      <button onclick="mgrRemoveName('${esc(n).replace(/'/g,"\'")}')" style="background:rgba(239,68,68,0.12);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>
     </div>`).join('') : `<div style="color:#475569;font-size:12px;padding:6px 0">No names on the board yet.</div>`;
     return `<div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;text-align:left">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -653,18 +799,15 @@ function setMode(m){S.mode=m;S.screen='setup';render();}
 function goHome(){stopT();S.screen='home';render();}
 function selectCat(c){
   if(c==='Mixed'){ S.categories = Object.keys(CAT); }
-  else {
-    S.categories = [c];
-    if(c!=='Sports World') S.sportsSub=null;
-  }
+  else { S.categories = [c]; }
+  S.catSub = null;
   render();
 }
-function setSportsSub(sub){
-  S.sportsSub = sub;
-  // Picking a specific sport means a focused round on just that sport.
-  // Drop any other ticked categories so Travel Smart/Soft Skills content
-  // can't leak into what should be an F1-only (or Rugby-only, etc.) round.
-  if(sub) S.categories = ['Sports World'];
+function setCatSub(sub){
+  S.catSub = sub;
+  // Picking a specific sub-topic means a focused round on just that topic.
+  // Categories are already narrowed to one at this point (the sub-topic UI
+  // only shows for a single selected category), so nothing else can leak in.
   render();
 }
 function addP(){
@@ -705,7 +848,7 @@ function reset(){
     categories:['Sports World','Travel Smart','Soft Skills'],
     questions:[],qIdx:0,curP:0,scores:{},selected:null,revealed:false,awarded:[],timer:TIMER,timerDuration:TIMER,_iv:null,
     lbLoading:false,lbData:null,lbPosted:null,lbSetup:null,
-    sportsSub:null,playTopic:null,lbTopicFilter:'All',lbPeriod:'All-Time',
+    catSub:null,playTopic:null,lbTopicFilter:'All',lbPeriod:'All-Time',
     lbMgrOpen:false,lbMgrAuthed:false,lbMgrPassInput:'',lbMgrMsg:''});
   render();
 }
