@@ -86,6 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 #edu-gate .eg-field{position:relative}
 #edu-gate input.eg-input{width:100%;background:#fff;border:1.5px solid #D8E1EC;border-radius:10px;padding:13px 70px 13px 14px;color:#0F2A4A;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
 #edu-gate input.eg-input::placeholder{color:#8A99AD}
+#edu-gate input.eg-input:-webkit-autofill,#edu-gate input.eg-input:-webkit-autofill:hover,#edu-gate input.eg-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:#0F2A4A;caret-color:#0F2A4A;transition:background-color 9999s}
 #edu-gate input.eg-input:focus{border-color:#034EA1;box-shadow:0 0 0 3px rgba(3,78,161,.15)}
 #edu-gate input.eg-input.eg-bad{border-color:#D32F2F}
 #edu-gate .eg-show{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4B5B70;font:600 12px inherit;font-family:inherit;padding:6px 8px;cursor:pointer;border-radius:6px}
@@ -138,14 +139,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
   var gate = document.getElementById('edu-gate');
 
-  // Only show lane numbers that fit fully on screen, so none appear half cut off
+  // Lane numbers: centre each one in the part of its lane that's on screen,
+  // and only show it if the whole number fits, so none appear cut off
+  var LANE_TOP = 650, LANE_W = 44;   // must match the track drawing
   function fitLaneNumbers(){
+    var svg = gate.querySelector('.eg-track');
     var nums = gate.querySelectorAll('.eg-num');
+    var ctm = svg && svg.getScreenCTM && svg.getScreenCTM();
+    var screenBottom = Infinity;
+    if (ctm) { var pt = svg.createSVGPoint(); pt.x = 0; pt.y = window.innerHeight; screenBottom = pt.matrixTransform(ctm.inverse()).y; }
     for (var i = 0; i < nums.length; i++){
-      nums[i].style.visibility = 'visible';
-      var r = nums[i].getBoundingClientRect();
-      var fits = r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth;
-      if (!fits) nums[i].style.visibility = 'hidden';
+      var t = nums[i], top = LANE_TOP + LANE_W * i, bottom = Math.min(top + LANE_W, screenBottom);
+      t.setAttribute('dominant-baseline', 'central');
+      t.setAttribute('y', ((top + bottom) / 2).toFixed(1));
+      t.style.visibility = 'visible';
+      var r = t.getBoundingClientRect();
+      var fits = bottom - top >= 20 && r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth;
+      if (!fits) t.style.visibility = 'hidden';
     }
   }
   fitLaneNumbers();
