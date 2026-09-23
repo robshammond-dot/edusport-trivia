@@ -7,47 +7,56 @@
 <title>Edusport Trivia Challenge</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#0B1829;color:#fff;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#F4F7FB;color:#0F2A4A;min-height:100vh}
 #app{min-height:100vh}
 .screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 .wrap{width:100%;max-width:480px}
 .btn{border:none;border-radius:12px;padding:14px 20px;font-weight:700;font-size:15px;cursor:pointer;width:100%;display:block;font-family:inherit;transition:background .2s}
-.btn-blue{background:#1A5BA6;color:#fff}
-.btn-blue:hover{background:#1B6EC2}
-.btn-blue:disabled{background:#1e293b;color:#475569;cursor:default}
-.btn-gold{background:#C8961A;color:#fff}
-.mode-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px 22px;cursor:pointer;text-align:left;width:100%;font-family:inherit;transition:all .2s;margin-bottom:12px}
-.mode-card:hover{background:rgba(26,91,166,0.18);border-color:#1A5BA6}
-.input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:16px;outline:none;width:100%;font-family:inherit}
-.input::placeholder{color:#475569}
-.input:focus{border-color:#1A5BA6}
-.player-row{background:rgba(255,255,255,0.06);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.avatar{background:#1A5BA6;color:#fff;border-radius:50%;width:28px;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.opt{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:9px;font-family:inherit;transition:all .15s}
+.btn-blue{background:#034EA1;color:#fff}
+.btn-blue:hover{background:#023B7A}
+.btn-blue:disabled{background:#DCE3EC;color:#8A99AD;cursor:default}
+.btn-green{background:#009040;color:#fff}
+.btn-green:hover{background:#00702F}
+.btn-green:disabled{background:#DCE3EC;color:#8A99AD;cursor:default}
+.btn-gold{background:#2B78C9;color:#fff}
+.btn:focus-visible,.mode-card:focus-visible,.opt:focus-visible,.cat-btn:focus-visible,.award-btn:focus-visible{outline:3px solid #009040;outline-offset:2px}
+.mode-card{background:#FFFFFF;border:2px solid #D8E1EC;border-left:6px solid #009040;border-radius:16px;padding:20px 22px;cursor:pointer;text-align:left;width:100%;font-family:inherit;transition:all .2s;margin-bottom:12px;box-shadow:0 2px 6px rgba(3,78,161,.06)}
+.mode-card:hover{background:#F2F7FD;border-color:#034EA1;border-left-color:#009040}
+.input{background:#FFFFFF;border:1.5px solid #D8E1EC;border-radius:10px;padding:12px 14px;color:#0F2A4A;font-size:16px;outline:none;width:100%;font-family:inherit}
+.input::placeholder{color:#8A99AD}
+.input:focus{border-color:#034EA1;box-shadow:0 0 0 3px rgba(3,78,161,.15)}
+.player-row{background:#FFFFFF;border:1px solid #D8E1EC;border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.avatar{background:#034EA1;color:#fff;border-radius:50%;width:28px;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.opt{background:#FFFFFF;border:2px solid #D8E1EC;border-radius:12px;padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;margin-bottom:9px;font-family:inherit;transition:all .15s}
+.opt:hover:not(:disabled){border-color:#034EA1;background:#F2F7FD}
 .opt:disabled{cursor:default}
-.opt .ltr{background:rgba(255,255,255,0.08);border-radius:50%;width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#64748B}
-.opt .txt{color:#94A3B8;font-size:14px;line-height:1.4}
-.opt.correct{background:rgba(34,197,94,0.15);border-color:#22C55E}
-.opt.correct .txt{color:#4ADE80}
-.opt.wrong{background:rgba(239,68,68,0.15);border-color:#EF4444}
-.opt.wrong .txt{color:#FCA5A5}
-.opt.chosen{border-color:#1A5BA6;background:rgba(26,91,166,0.15)}
-.opt.chosen .txt{color:#fff}
-.t-bar{height:4px;background:#1E293B}
+.opt .ltr{background:#EEF3F9;border-radius:50%;width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#034EA1}
+.opt .txt{color:#1F3450;font-size:14px;line-height:1.4}
+.opt.correct{background:#E7F5EC;border-color:#009040}
+.opt.correct .txt{color:#00662D;font-weight:600}
+.opt.correct .ltr{background:#009040;color:#fff}
+.opt.wrong{background:#FDECEC;border-color:#D32F2F}
+.opt.wrong .txt{color:#B42318}
+.opt.wrong .ltr{background:#D32F2F;color:#fff}
+.opt.chosen{border-color:#034EA1;background:#EAF1FB}
+.opt.chosen .txt{color:#0F2A4A}
+.t-bar{height:5px;background:#DCE3EC}
 .t-fill{height:100%;transition:width 1s linear,background .3s}
-.top{background:rgba(0,0,0,0.35);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.board{background:rgba(255,255,255,0.03);border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:16px}
-.award-btn{background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 16px;cursor:pointer;color:#CBD5E1;font-weight:600;font-size:14px;font-family:inherit;margin:4px;transition:all .2s}
-.award-btn.done{background:rgba(34,197,94,0.15);border-color:#22C55E;color:#4ADE80;cursor:default}
-.result-row{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);border-radius:14px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.result-row.gold{background:rgba(200,150,26,0.1);border-color:#C8961A}
-.stats{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 16px;display:flex;gap:20px;justify-content:center;margin-top:16px}
+.top{background:#034EA1;border-bottom:none;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.board{background:#FFFFFF;border:1px solid #D8E1EC;border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:16px}
+.award-btn{background:#FFFFFF;border:2px solid #D8E1EC;border-radius:10px;padding:8px 16px;cursor:pointer;color:#1F3450;font-weight:600;font-size:14px;font-family:inherit;margin:4px;transition:all .2s}
+.award-btn.done{background:#E7F5EC;border-color:#009040;color:#00662D;cursor:default}
+.result-row{background:#FFFFFF;border:2px solid #D8E1EC;border-radius:14px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.result-row.gold{background:#FBF4E2;border-color:#C8961A}
+.stats{background:#FFFFFF;border:1px solid #D8E1EC;border-radius:10px;padding:12px 16px;display:flex;gap:20px;justify-content:center;margin-top:16px}
 .stat{text-align:center}
-.stat .v{color:#1A5BA6;font-weight:800;font-size:18px}
-.stat .l{color:#475569;font-size:11px}
+.stat .v{color:#034EA1;font-weight:800;font-size:18px}
+.stat .l{color:#5B6B80;font-size:11px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
-.cat-btn{border:2px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s;text-align:center;background:rgba(255,255,255,0.05);color:#94A3B8}
+.cat-btn{border:2px solid #D8E1EC;border-radius:12px;padding:12px 16px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .2s;text-align:center;background:#FFFFFF;color:#33465E}
+.cat-btn:hover{border-color:#9FB6D3}
 .cat-btn.active{color:#fff}
+
 </style>
 </head>
 <body>
@@ -64,30 +73,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
      as the passcode can be found by viewing the page source.
      ============================================================ -->
 <style>
-#edu-gate{position:fixed;inset:0;z-index:2147483000;background:#0B1829;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#fff}
+#edu-gate{position:fixed;inset:0;z-index:2147483000;background:#F4F7FB;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#0F2A4A}
 #edu-gate *{box-sizing:border-box}
 #edu-gate .eg-track{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#edu-gate .eg-panel{position:relative;width:100%;max-width:400px;background:#10223A;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)}
-#edu-gate .eg-logo{background:#fff;padding:22px 28px 18px;display:flex;justify-content:center;border-bottom:4px solid #3CAF35}
+#edu-gate .eg-panel{position:relative;width:100%;max-width:400px;background:#fff;border:1px solid #D8E1EC;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(3,78,161,.16)}
+#edu-gate .eg-logo{background:#fff;padding:22px 28px 18px;display:flex;justify-content:center;border-bottom:4px solid #009040}
 #edu-gate .eg-logo img{width:100%;max-width:250px;height:auto;display:block}
 #edu-gate .eg-body{padding:26px 28px 28px}
 #edu-gate h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:0 0 6px;line-height:1.2}
-#edu-gate p.eg-sub{margin:0 0 22px;color:#94A3B8;font-size:14px;line-height:1.5}
-#edu-gate label.eg-lbl{display:block;font-size:13px;font-weight:600;color:#CBD5E1;margin-bottom:7px}
+#edu-gate p.eg-sub{margin:0 0 22px;color:#4B5B70;font-size:14px;line-height:1.5}
+#edu-gate label.eg-lbl{display:block;font-size:13px;font-weight:600;color:#1F3450;margin-bottom:7px}
 #edu-gate .eg-field{position:relative}
-#edu-gate input.eg-input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:10px;padding:13px 70px 13px 14px;color:#fff;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
-#edu-gate input.eg-input::placeholder{color:#526179}
-#edu-gate input.eg-input:focus{border-color:#1553A0;box-shadow:0 0 0 3px rgba(21,83,160,.35)}
-#edu-gate input.eg-input.eg-bad{border-color:#EF4444}
-#edu-gate .eg-show{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94A3B8;font:600 12px inherit;font-family:inherit;padding:6px 8px;cursor:pointer;border-radius:6px}
-#edu-gate .eg-show:hover{color:#fff}
-#edu-gate .eg-show:focus-visible,#edu-gate .eg-btn:focus-visible,#edu-gate .eg-check input:focus-visible{outline:2px solid #3CAF35;outline-offset:2px}
-#edu-gate .eg-err{min-height:20px;margin:8px 0 12px;color:#FCA5A5;font-size:13px}
-#edu-gate .eg-check{display:flex;align-items:center;gap:9px;font-size:13px;color:#CBD5E1;margin-bottom:18px;cursor:pointer;user-select:none}
-#edu-gate .eg-check input{width:17px;height:17px;accent-color:#3CAF35;margin:0}
-#edu-gate .eg-btn{width:100%;border:none;border-radius:12px;padding:14px 20px;background:#3CAF35;color:#fff;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;transition:background .15s}
-#edu-gate .eg-btn:hover{background:#34992E}
-#edu-gate .eg-foot{margin:18px 0 0;font-size:12px;color:#64748B;text-align:center}
+#edu-gate input.eg-input{width:100%;background:#fff;border:1.5px solid #D8E1EC;border-radius:10px;padding:13px 70px 13px 14px;color:#0F2A4A;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
+#edu-gate input.eg-input::placeholder{color:#8A99AD}
+#edu-gate input.eg-input:focus{border-color:#034EA1;box-shadow:0 0 0 3px rgba(3,78,161,.15)}
+#edu-gate input.eg-input.eg-bad{border-color:#D32F2F}
+#edu-gate .eg-show{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4B5B70;font:600 12px inherit;font-family:inherit;padding:6px 8px;cursor:pointer;border-radius:6px}
+#edu-gate .eg-show:hover{color:#034EA1}
+#edu-gate .eg-show:focus-visible,#edu-gate .eg-btn:focus-visible,#edu-gate .eg-check input:focus-visible{outline:2px solid #009040;outline-offset:2px}
+#edu-gate .eg-err{min-height:20px;margin:8px 0 12px;color:#B42318;font-size:13px}
+#edu-gate .eg-check{display:flex;align-items:center;gap:9px;font-size:13px;color:#1F3450;margin-bottom:18px;cursor:pointer;user-select:none}
+#edu-gate .eg-check input{width:17px;height:17px;accent-color:#009040;margin:0}
+#edu-gate .eg-btn{width:100%;border:none;border-radius:12px;padding:14px 20px;background:#009040;color:#fff;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;transition:background .15s}
+#edu-gate .eg-btn:hover{background:#00702F}
+#edu-gate .eg-foot{margin:18px 0 0;font-size:12px;color:#6B7A8F;text-align:center}
 #edu-gate.eg-shake .eg-panel{animation:egShake .35s}
 @keyframes egShake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 @media (prefers-reduced-motion:reduce){#edu-gate.eg-shake .eg-panel{animation:none}}
@@ -95,7 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <div id="edu-gate" role="dialog" aria-modal="true" aria-labelledby="eg-title">
   <svg class="eg-track" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <path d="M -200,-114 L 900,-114 A 514 514 0 0 1 900,914 L -200,914 Z M -200,150 L 900,150 A 250 250 0 0 1 900,650 L -200,650 Z" fill="#1553A0" fill-opacity=".30" fill-rule="evenodd"/><path d="M -200,150 L 900,150 A 250 250 0 0 1 900,650 L -200,650" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"/><path d="M -200,106 L 900,106 A 294 294 0 0 1 900,694 L -200,694" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="2"/><path d="M -200,62 L 900,62 A 338 338 0 0 1 900,738 L -200,738" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="2"/><path d="M -200,18 L 900,18 A 382 382 0 0 1 900,782 L -200,782" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="2"/><path d="M -200,-26 L 900,-26 A 426 426 0 0 1 900,826 L -200,826" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="2"/><path d="M -200,-70 L 900,-70 A 470 470 0 0 1 900,870 L -200,870" fill="none" stroke="#fff" stroke-opacity="0.16" stroke-width="2"/><path d="M -200,-114 L 900,-114 A 514 514 0 0 1 900,914 L -200,914" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"/><rect x="380" y="650" width="8" height="264" fill="#3CAF35" fill-opacity=".85"/><text x="354" y="678.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">1</text><text x="354" y="722.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">2</text><text x="354" y="766.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">3</text><text x="354" y="810.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">4</text><text x="354" y="854.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">5</text><text x="354" y="898.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".35" text-anchor="middle" font-family="Arial,sans-serif">6</text><rect x="560" y="110" width="4" height="36" fill="#fff" fill-opacity=".3"/><rect x="598" y="66" width="4" height="36" fill="#fff" fill-opacity=".3"/><rect x="636" y="22" width="4" height="36" fill="#fff" fill-opacity=".3"/><rect x="674" y="-22" width="4" height="36" fill="#fff" fill-opacity=".3"/><rect x="712" y="-66" width="4" height="36" fill="#fff" fill-opacity=".3"/><rect x="750" y="-110" width="4" height="36" fill="#fff" fill-opacity=".3"/>
+    <path d="M -200,-114 L 900,-114 A 514 514 0 0 1 900,914 L -200,914 Z M -200,150 L 900,150 A 250 250 0 0 1 900,650 L -200,650 Z" fill="#034EA1" fill-opacity="1" fill-rule="evenodd"/><path d="M -200,150 L 900,150 A 250 250 0 0 1 900,650 L -200,650" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2"/><path d="M -200,106 L 900,106 A 294 294 0 0 1 900,694 L -200,694" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M -200,62 L 900,62 A 338 338 0 0 1 900,738 L -200,738" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M -200,18 L 900,18 A 382 382 0 0 1 900,782 L -200,782" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M -200,-26 L 900,-26 A 426 426 0 0 1 900,826 L -200,826" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M -200,-70 L 900,-70 A 470 470 0 0 1 900,870 L -200,870" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M -200,-114 L 900,-114 A 514 514 0 0 1 900,914 L -200,914" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2"/><rect x="380" y="650" width="8" height="264" fill="#009040" fill-opacity="1"/><text x="354" y="678.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">1</text><text x="354" y="722.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">2</text><text x="354" y="766.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">3</text><text x="354" y="810.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">4</text><text x="354" y="854.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">5</text><text x="354" y="898.0" font-size="18" font-weight="700" fill="#fff" fill-opacity=".75" text-anchor="middle" font-family="Arial,sans-serif">6</text><rect x="560" y="110" width="4" height="36" fill="#fff" fill-opacity=".65"/><rect x="598" y="66" width="4" height="36" fill="#fff" fill-opacity=".65"/><rect x="636" y="22" width="4" height="36" fill="#fff" fill-opacity=".65"/><rect x="674" y="-22" width="4" height="36" fill="#fff" fill-opacity=".65"/><rect x="712" y="-66" width="4" height="36" fill="#fff" fill-opacity=".65"/><rect x="750" y="-110" width="4" height="36" fill="#fff" fill-opacity=".65"/>
   </svg>
   <div class="eg-panel">
     <div class="eg-logo"><img alt="Edusport Travel and Tours" src="data:image/webp;base64,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"></div>
@@ -319,9 +328,9 @@ async function mgrClear(period){
 }
 
 const CAT={
-  'Sports World':{col:'#1A5BA6',icon:'🏆'},
-  'Travel Smart':{col:'#2EA527',icon:'✈️'},
-  'Soft Skills': {col:'#C8961A',icon:'🤝'}
+  'Sports World':{col:'#034EA1',icon:'🏆'},
+  'Travel Smart':{col:'#009040',icon:'✈️'},
+  'Soft Skills': {col:'#2B78C9',icon:'🤝'}
 };
 // Sub-topics within Sports World, so the top-level picker never grows past 3 buttons
 // no matter how many individual sports get added underneath Sports World.
@@ -330,7 +339,7 @@ const CAT={
 const SUBS = {
   'Sports World': ['Rugby','Football','Tennis','Cycling','Motorsport','MotoGP','Golf','Formula 1','Adventure Travel'],
   'Travel Smart': ['Visas','Flight Tips and Rules','General Travel Tips'],
-  'Soft Skills': ['Client Service','Customer Profiling','Phone Etiquette','Sales & Company Knowledge']
+  'Soft Skills': ['Client Service','Customer Profiling','Phone Etiquette','Quoting Clients','Sales & Company Knowledge']
 };
 const ALL=[
   {c:'Sports World',sub:'Rugby',q:'In which country was the 2023 Rugby World Cup hosted?',o:['Japan','Australia','France','England'],a:2},
@@ -541,6 +550,60 @@ const ALL=[
   {c:'Soft Skills',sub:'Phone Etiquette',q:'For a loyalty or repeat traveller check-in call, what does the playbook say a consultant should do?',o:['Wait for the customer to ask what is coming up','Bring the calendar to them proactively','Only call if there is a complaint','Avoid mentioning future events'],a:1},
   {c:'Soft Skills',sub:'Phone Etiquette',q:'Which of these is listed as a red flag in the "On The Line" phone playbook?',o:['A call that ends with a clear recap of what was agreed','A call ending without a clear recap of what was agreed and who owns the next step','A consultant taking ownership of an issue','A transfer briefed to the receiving colleague first'],a:1},
   {c:'Soft Skills',sub:'Phone Etiquette',q:'According to the phone playbook\'s "Why This Matters" section, why do most complaints actually escalate?',o:['Because the original issue was too complex','Because the customer felt passed around, not because of the original issue','Because the consultant spoke too quickly','Because the call was too short'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which integration makes a caller\'s Freshsales profile pop up automatically when a call comes in?',o:['UDMS','Freshchat','Ditronics','Microsoft Teams'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'The phone playbook compares the customer profile that pops up on a call to what?',o:['Your team sheet','A match ticket','The final whistle','A scorecard'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'When the customer profile pops up, what should you check before you even greet the caller?',o:['Trip history and loyalty status','Their payment history only','Nothing, greet them first','Their social media profiles'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'A call comes in and no customer profile pops up. What does the playbook say to do?',o:['Transfer the call to a colleague','Ask the caller to email their details instead','Carry on with the call and sort the profile out later','Create the customer profile in Freshsales as the call happens'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'When creating a new profile during a call, what should you capture as a minimum?',o:['Email address only','Name, contact details and the reason for the call','Name and passport number','Full travel history and budget'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'What should you do if customer profiles keep failing to pop up on calls?',o:['Stop using Freshsales for calls','Ask callers to phone back later','Ignore it, it happens','Flag the repeat non-pops to the team, as the integration may need a look'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'If the profile pops up, how should you use what you see on it?',o:['Read the whole profile back to the caller','Ignore it and start fresh','Ask the caller to confirm every detail again','Reference it naturally and don\'t re-ask what\'s already there'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'According to the phone playbook, how quickly should you answer the phone?',o:['Whenever you finish your current task','Within three rings','Within one minute','Within five rings'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Why does the playbook tell you to smile when you answer the phone?',o:['It changes your tone','It is company policy for photos','The caller might be on video','It helps you remember names'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'What should your greeting include when you answer a call?',o:['Greet, give your name and Edusport, then ask how you can help','The current special offers','Your extension number and department','Just "Hello?"'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'The playbook runs every call in four phases, like a match. What are they?',o:['Answer, transfer, hold, hang up','Warm up, first half, second half, penalties','Kickoff, active listening, the recap, full time','Greeting, selling, closing, upselling'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which of these is an active listening habit from the phone playbook?',o:['Start typing the quote while they talk','Use short verbal nods, like "I see"','Stay completely silent until they stop','Finish the caller\'s sentences to save time'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'During the recap, what should you repeat back to the caller?',o:['Nothing, they know what they said','Their full address','Only the total price','Dates, names and numbers'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'At full time, who should hang up first?',o:['The caller','It doesn\'t matter','You, to keep the line free','Whoever speaks last'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'When should you log your call notes?',o:['Right after the call','When a manager asks for them','Only if the customer books','At the end of the week'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'On a new booking enquiry call, what does the playbook say not to rush into?',o:['Qualifying the trip','Quoting before you understand what matters to them','Understanding the occasion','Asking about the event'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'On an existing booking or follow-up query, what should you do before saying "let me check"?',o:['Put the caller on hold','Transfer to the original consultant','Pull up the booking and know the status','Ask for their ID number'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Why is a general info or travel advice call still worth a great call, even with no booking on the table?',o:['The caller might leave a review','It counts towards call targets','Today\'s advice call is often next season\'s booking','Advice calls are billed separately'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'The playbook describes the angry client as what kind of moment?',o:['An injury time moment','A penalty shootout','A half-time talk','A red card moment'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'If a follow-up has been sitting too long, what does the playbook say you should do?',o:['Offer a discount straight away','Own that honestly rather than making them chase it a second time','Avoid mentioning the delay','Blame the supplier'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'When a handover to a colleague is genuinely needed, what should you do?',o:['Transfer the call straight away','Give the customer the colleague\'s number','Brief the colleague before transferring, so the customer doesn\'t repeat themselves','Ask the customer to call back later'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'According to the "No Substitutions" section, how does the customer experience Edusport?',o:['As one team','As separate departments','As a call centre','As individual consultants'],a:0},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Instead of transferring a caller cold, which line does the playbook suggest?',o:['"Please hold for the next available agent"','"Give me a moment to pull it up rather than transferring you cold"','"That\'s not my department"','"You\'ll need to call back for that"'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Why does the playbook say repeat travellers remember everything?',o:['They record every call','They keep detailed diaries','They always travel with the same group','Sporting calendars repeat every year, and so does the experience you gave last time'],a:3},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'The playbook says "the recap is the record". What does that mean?',o:['The customer keeps the record','Calls should be recorded','What gets recapped on the call is what should get logged straight after it','Only managers keep records'],a:2},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Why does the playbook say first impressions decide the season?',o:['New clients only call once','A new client\'s first call sets whether they book once or become a regular','First impressions set the price','First calls are the longest'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which of these is a red flag in the phone playbook?',o:['Briefing a colleague before a transfer','A returning customer being asked questions they already answered on a previous call','Acknowledging an angry caller\'s frustration','Confirming the next step and owner'],a:1},
+  {c:'Soft Skills',sub:'Phone Etiquette',q:'Which Edusport guide does the phone playbook link to for the six-pillar approach to reading the customer behind the profile?',o:['On The Line','Beyond the Booking','Grid Positions','Know The Fixture'],a:1},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'According to the quoting guide, what is a quote rarely won or lost on alone?',o:['Price','Timing','Presentation','Supplier choice'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What two things does the quoting guide say decide whether a quote is won or lost?',o:['The lowest price and the fastest reply','Whether the client feels understood, and whether they have a real reason to act now','A long quote and a free upgrade','The number of options and a discount code'],a:1},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What does mirror imaging need before it can work?',o:['A discount to offer','A manager\'s approval','A standard package template','Real context, drawn out in the consultation'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Plenty of enquiries arrive as a bare request for a quote. Where does the guide say the missing context should come from?',o:['The client\'s social media','A standard questionnaire emailed later','Guessing from how the client writes','The consultation, drawn out deliberately'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'When asking about a client\'s specific interest, what does the guide say to find out?',o:['A favourite team, driver or player, or a moment they want at the event','How often they travel','Only which event they\'re going to','Their job title'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'How does the guide say you should find out a client\'s budget priority?',o:['Wait for them to mention it','Ask directly whether they\'re optimising for price or for flexibility and comfort','Always assume they want the cheapest option','Guess it from how they write'],a:1},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Which of these is listed as a constraint worth asking about in the consultation?',o:['Connection tolerance, mobility needs, or a past travel experience to avoid repeating','Their favourite colour','Their star sign','Which airline lounge they prefer'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Why does the guide say it matters to ask about the occasion, such as a milestone or bucket-list trip?',o:['It lets you charge more','It decides the travel dates','It is required for insurance','It changes what actually matters to them'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'How should consultation questions be asked, according to the quoting guide?',o:['Naturally, with a couple of well-placed open questions','As five quick closed questions in a row','Only by email','As a form read aloud'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What does mirror imaging mean in the quoting guide?',o:['Offering the most expensive package first','Copying the client\'s writing style','Sending the same quote twice','Using everything the client tells you to select options that actually match'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'In the worked example, the client follows Verstappen, is travelling as a family of five and is watching the budget. What seating is mirrored back?',o:['The most expensive paddock package','General admission only','Trackside seating with sightlines to the Red Bull garage','Grandstand seats on the opposite side of the track'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'A client mentions both a favourite driver and a tight budget. What does the guide say the options should do?',o:['Offer a single premium option','Focus on the driver, that\'s the exciting part','Focus on the budget and ignore the driver','Balance both'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What does the guide call building a quote around the flashiest detail while ignoring the practical ones?',o:['Genuine urgency','Upselling','Mirroring half the client, not the whole client','Tailor-making'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'A generic enquiry arrives with no personal details. What does the guide say it should get?',o:['The premium package by default','No reply until they share more','A solid, well-matched quote','An invented personal touch to stand out'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'According to the guide, when should urgency be used?',o:['Only when it\'s true','On every quote','Only on follow-ups','Whenever a quote goes quiet'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Which of these is a genuine urgency reason listed in the quoting guide?',o:['A made-up weekend special','A countdown timer that resets','A quoted fare or rate held for a limited window before it\'s re-priced','Saying "only 2 left" to every client'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'When does the guide say exchange rate movement is worth mentioning?',o:['When a rate is genuinely quoted in a foreign currency and has moved or is volatile','Only for European trips','Always, to create pressure','Never'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What does the guide say about using "limited availability" in a quote?',o:['Never mention availability','Only use it on follow-ups','Only use it where availability is genuinely limited on the specific flight or property quoted','Use it on every quote as a stock phrase'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Why does the guide say deposit and payment windows create genuine urgency?',o:['They only apply to group bookings','Missing them means losing the held space','They earn the consultant commission','They are optional'],a:1},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Why does the quoting guide say fake urgency is so damaging?',o:['A client who catches one invented deadline stops believing any future one, including real ones','It only works on new clients','Suppliers don\'t allow it','It takes too long to write'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'On a first quote, where should a genuine time-sensitive element be mentioned?',o:['In a separate email a week later','Only if the client asks','Buried at the bottom','Plainly and early'],a:3},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Before following up on a quote that\'s gone quiet, what should you do first?',o:['Send a generic chase-up script','Offer a discount','Re-read the original enquiry and quote','Mark it as lost'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'If nothing has changed since the quote was sent, what should a follow-up focus on?',o:['Removing friction, like answering an unspoken question or offering a call','Repeating the price','Creating a reason to reply','Adding a deadline'],a:0},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'According to the guide, which client is more likely to go quiet for good?',o:['A repeat client','A client who feels chased','A client who feels genuinely helped','A client who asked lots of questions'],a:1},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'What objection does the guide say "Book now" with no real reason attached invites?',o:['"Who else is going?"','"It\'s too expensive"','"Why now, specifically?"','"Can you add insurance?"'],a:2},
+  {c:'Soft Skills',sub:'Quoting Clients',q:'Which question is on the guide\'s checklist before sending a quote or follow-up?',o:['Is any urgency mentioned actually true, and can I point to the specific reason if asked?','Have I added a countdown?','Is this the cheapest option available?','Did I include every package we sell?'],a:0},
   {c:'Sports World',sub:'Formula 1',q:'How many laps make up the Abu Dhabi Grand Prix at Yas Marina Circuit?',o:['56','58','60','62'],a:1},
   {c:'Sports World',sub:'Formula 1',q:'What must South African passport holders arrange before travelling to the Abu Dhabi Grand Prix?',o:['Nothing, it is visa-free','A visa/e-visa via Etihad\'s Manage Booking section','A work permit','A police clearance certificate only'],a:1},
   {c:'Sports World',sub:'Formula 1',q:'What makes the Lusail International Circuit distinctive for the Qatar Grand Prix?',o:['It is the shortest circuit on the calendar','It is completely floodlit, so cars race through the desert at night','It has the most laps of any circuit','It only opened in 2026'],a:1},
@@ -656,7 +719,8 @@ function pickQ(){
   const pool=[];
   const perCat=Math.ceil(15/active.length);
   Object.values(m).forEach(qs=>pool.push(...shuffle(qs).slice(0,perCat)));
-  return shuffle(pool).slice(0,15);
+  // Shuffle answer options on every serve so the right answer isn't always in the same spot
+  return shuffle(pool).slice(0,15).map(q=>{const idx=shuffle(q.o.map((_,i)=>i));return {...q,o:idx.map(i=>q.o[i]),a:idx.indexOf(q.a)};});
 }
 function currentTopicLabel(){
   if(S.categories.length === Object.keys(CAT).length) return 'Mixed';
@@ -672,7 +736,7 @@ function startT(){
   S._iv=setInterval(()=>{
     S.timer--;
     const f=document.getElementById('tf'),n=document.getElementById('tn'),r=document.getElementById('tr');
-    const col=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
+    const col=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#D32F2F';
     if(f){f.style.width=(S.timer/S.timerDuration*100)+'%';f.style.background=col;}
     if(n){n.textContent=S.timer;n.style.color=col;}
     if(r){r.style.borderColor=col;}
@@ -683,8 +747,8 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 function logoHTML(center){
   return `<div style="text-align:${center?'center':'left'};margin-bottom:24px">
-    <div style="display:inline-block;background:#fff;border-radius:10px;padding:8px 16px;box-shadow:0 2px 10px rgba(0,0,0,0.3)">
-      <img src="data:image/jpeg;base64,${LOGO_B64}" alt="Edusport Travel and Tours" style="height:26px;display:block">
+    <div style="display:inline-block;background:#fff;border-radius:12px;padding:10px 18px;border:1px solid #D8E1EC">
+      <img src="data:image/jpeg;base64,${LOGO_B64}" alt="Edusport Travel and Tours" style="height:40px;display:block">
     </div>
   </div>`;
 }
@@ -703,21 +767,21 @@ function rHome(){
   const cats=Object.entries(CAT).map(([c,v])=>`<div style="text-align:center"><div style="font-size:22px">${v.icon}</div><div style="color:${v.col};font-size:11px;font-weight:700;margin-top:4px">${c}</div></div>`).join('');
   return `<div class="screen"><div class="wrap" style="text-align:center">
     ${logoHTML(true)}
-    <div style="color:#fff;font-size:34px;font-weight:800;margin-bottom:6px">Trivia Challenge</div>
-    <div style="color:#64748B;font-size:13px;margin-bottom:28px">Sports · Travel · Soft Skills</div>
-    <div style="color:#94A3B8;font-size:14px;margin-bottom:20px">Select a game mode to begin</div>
+    <div style="color:#0F2A4A;font-size:34px;font-weight:800;margin-bottom:6px">Trivia Challenge</div>
+    <div style="color:#6B7A8F;font-size:13px;margin-bottom:28px">Sports · Travel · Soft Skills</div>
+    <div style="color:#475569;font-size:14px;margin-bottom:20px">Select a game mode to begin</div>
     <button class="mode-card" onclick="setMode('individual')">
       <div style="font-size:28px;margin-bottom:6px">👤</div>
-      <div style="color:#fff;font-weight:700;font-size:16px;margin-bottom:4px">Individual Play</div>
-      <div style="color:#94A3B8;font-size:13px;line-height:1.5">Solo or take turns on a shared screen. Auto-graded with a countdown timer.</div>
+      <div style="color:#0F2A4A;font-weight:700;font-size:16px;margin-bottom:4px">Individual Play</div>
+      <div style="color:#475569;font-size:13px;line-height:1.5">Solo or take turns on a shared screen. Auto-graded with a countdown timer.</div>
     </button>
     <button class="mode-card" onclick="setMode('group')">
       <div style="font-size:28px;margin-bottom:6px">👥</div>
-      <div style="color:#fff;font-weight:700;font-size:16px;margin-bottom:4px">Group Play</div>
-      <div style="color:#94A3B8;font-size:13px;line-height:1.5">Everyone plays as one team on a shared device. Discuss it out, tap the answer, auto-graded, no manual scoring.</div>
+      <div style="color:#0F2A4A;font-weight:700;font-size:16px;margin-bottom:4px">Group Play</div>
+      <div style="color:#475569;font-size:13px;line-height:1.5">Everyone plays as one team on a shared device. Discuss it out, tap the answer, auto-graded, no manual scoring.</div>
     </button>
     <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:28px">${cats}</div>
-    <button onclick="openLeaderboard()" style="background:none;border:1px solid rgba(255,255,255,0.14);color:#94A3B8;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:24px;font-family:inherit">🏅 View Leaderboard</button>
+    <button onclick="openLeaderboard()" style="background:none;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:24px;font-family:inherit">🏅 View Leaderboard</button>
   </div></div>`;
 }
 
@@ -726,19 +790,19 @@ function rSetup(){
   const rows=S.players.map((p,i)=>`<div class="player-row">
     <div style="display:flex;align-items:center;gap:10px">
       <div class="avatar">${i+1}</div>
-      <span style="color:#e2e8f0;font-size:14px">${esc(p)}</span>
+      <span style="color:#1F3450;font-size:14px">${esc(p)}</span>
     </div>
-    <button onclick="removeP(${i})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:22px;line-height:1;font-family:inherit">×</button>
+    <button onclick="removeP(${i})" style="background:none;border:none;color:#6B7A8F;cursor:pointer;font-size:22px;line-height:1;font-family:inherit">×</button>
   </div>`).join('');
 
   const allCats = Object.keys(CAT);
   const isMixed = S.categories.length === allCats.length;
   const catBtns = ['Mixed', ...allCats].map(c=>{
     const on = c==='Mixed' ? isMixed : (S.categories.length===1 && S.categories[0]===c);
-    const col = c==='Mixed' ? '#94A3B8' : CAT[c].col;
+    const col = c==='Mixed' ? '#33465E' : CAT[c].col;
     const icon = c==='Mixed' ? '🔀' : CAT[c].icon;
     return `<button class="cat-btn${on?' active':''}" onclick="selectCat('${c}')"
-      style="${on?`background:${col}22;border-color:${col};color:#fff;`:''}">
+      style="${on?`background:${col};border-color:${col};color:#fff;`:''}">
       ${icon} ${c}
     </button>`;
   }).join('');
@@ -751,26 +815,26 @@ function rSetup(){
       const val = s==='Mixed' ? null : s;
       const on = S.catSub === val;
       return `<button class="cat-btn${on?' active':''}" onclick="setCatSub(${val?`'${val}'`:'null'})"
-        style="${on?`background:${col}22;border-color:${col};color:#fff;`:''};font-size:12px;padding:9px 10px">${esc(s)}</button>`;
+        style="${on?`background:${col};border-color:${col};color:#fff;`:''};font-size:12px;padding:9px 10px">${esc(s)}</button>`;
     }).join('');
-    return `<div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${esc(catName)}: Topic</div>
-    <div style="color:#475569;font-size:12px;margin-bottom:10px">Play the full mixed pool, or zoom into one topic for a focused round.</div>
+    return `<div style="color:#009040;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${esc(catName)}: Topic</div>
+    <div style="color:#6B7A8F;font-size:12px;margin-bottom:10px">Play the full mixed pool, or zoom into one topic for a focused round.</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:24px">${chips}</div>`;
   })() : '';
 
   const playersSection = isGroup ? `
-    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Team / Group Name</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:14px">Everyone plays together as one team on this screen.</div>
+    <div style="color:#009040;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Team / Group Name</div>
+    <div style="color:#6B7A8F;font-size:13px;margin-bottom:14px">Everyone plays together as one team on this screen.</div>
     <input class="input" id="ni" placeholder="e.g. Front Desk Team"
       oninput="S.nameInput=this.value; const b=document.getElementById('startBtn'); if(b)b.disabled=!this.value.trim();"
       onkeydown="if(event.key==='Enter')startGroupGame()" value="${esc(S.nameInput)}" autofocus style="margin-bottom:24px">
   ` : `
-    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Players</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:14px">Add 1 or more players. Solo play works too.</div>
+    <div style="color:#009040;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Players</div>
+    <div style="color:#6B7A8F;font-size:13px;margin-bottom:14px">Add 1 or more players. Solo play works too.</div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <input class="input" id="ni" placeholder="Player name…"
         oninput="S.nameInput=this.value" onkeydown="if(event.key==='Enter')addP()" value="${esc(S.nameInput)}" autofocus>
-      <button onclick="addP()" style="background:#1A5BA6;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit">Add</button>
+      <button onclick="addP()" style="background:#034EA1;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit">Add</button>
     </div>
     <div style="min-height:50px;margin-bottom:24px">${rows}</div>
   `;
@@ -778,17 +842,17 @@ function rSetup(){
   const canStart = isGroup ? !!S.nameInput.trim() : (S.players.length>=1 && S.categories.length>=1);
   const startLabel = isGroup ? 'Start Game' : `Start Game (${S.players.length} ${S.players.length===1?'player':'players'})`;
   return `<div class="screen"><div class="wrap">
-    <button onclick="goHome()" style="background:none;border:none;color:#64748B;cursor:pointer;font-size:14px;margin-bottom:20px;padding:0;font-family:inherit">← Back</button>
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">${isGroup?'Group Play':'Individual Play'}</div>
-    <div style="color:#fff;font-size:26px;font-weight:800;margin-bottom:6px">Setup</div>
+    <button onclick="goHome()" style="background:none;border:none;color:#6B7A8F;cursor:pointer;font-size:14px;margin-bottom:20px;padding:0;font-family:inherit">← Back</button>
+    <div style="color:#009040;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">${isGroup?'Group Play':'Individual Play'}</div>
+    <div style="color:#0F2A4A;font-size:26px;font-weight:800;margin-bottom:6px">Setup</div>
 
-    <div style="color:#94A3B8;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Categories</div>
+    <div style="color:#009040;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px">Categories</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px">${catBtns}</div>
     ${subUI}
 
     ${playersSection}
 
-    <button class="btn btn-blue" id="startBtn" onclick="${isGroup?'startGroupGame()':'startGame()'}" ${!canStart?'disabled':''}>
+    <button class="btn btn-green" id="startBtn" onclick="${isGroup?'startGroupGame()':'startGame()'}" ${!canStart?'disabled':''}>
       ${startLabel}
     </button>
     <div class="stats">
@@ -803,7 +867,7 @@ function rSetup(){
 function rGame(){
   const q=S.questions[S.qIdx],cat=CAT[q.c],pl=S.players[S.curP];
   const isGroup=S.mode==='group';
-  const pct=(S.timer/S.timerDuration*100)+'%',tcol=S.timer>15?'#22C55E':S.timer>8?'#F97316':'#EF4444';
+  const pct=(S.timer/S.timerDuration*100)+'%',tcol=S.timer>15?'#00843D':S.timer>8?'#D9620B':'#D32F2F';
   const opts=q.o.map((o,i)=>{
     let cls='opt';
     if(S.revealed){if(i===q.a)cls+=' correct';else if(i===S.selected)cls+=' wrong';}
@@ -811,20 +875,20 @@ function rGame(){
     return `<button class="${cls}" onclick="answer(${i})" ${S.revealed?'disabled':''}><span class="ltr">${String.fromCharCode(65+i)}</span><span class="txt">${esc(o)}</span></button>`;
   }).join('');
   const fb=S.revealed?`<div style="text-align:center;margin-bottom:14px">
-    ${S.selected===q.a?'<div style="color:#4ADE80;font-weight:700;font-size:17px">Correct! +10 pts 🎉</div>':`<div style="color:#F87171;font-weight:700;font-size:17px">${S.selected===null?"Time's up!":"Not quite!"} Correct answer: <span style="color:#4ADE80">${esc(q.o[q.a])}</span></div>`}
-  </div><button class="btn btn-blue" onclick="nextQ()">${S.qIdx+1<S.questions.length?'Next →':'See Results →'}</button>`:'';
-  return `<div style="min-height:100vh;background:#0B1829;display:flex;flex-direction:column;font-family:inherit">
+    ${S.selected===q.a?'<div style="color:#00843D;font-weight:700;font-size:17px">Correct! +10 pts 🎉</div>':`<div style="color:#C62828;font-weight:700;font-size:17px">${S.selected===null?"Time's up!":"Not quite!"} Correct answer: <span style="color:#00843D">${esc(q.o[q.a])}</span></div>`}
+  </div><button class="btn btn-green" onclick="nextQ()">${S.qIdx+1<S.questions.length?'Next →':'See Results →'}</button>`:'';
+  return `<div style="min-height:100vh;background:#F4F7FB;display:flex;flex-direction:column;font-family:inherit">
     <div class="top">
-      <div><div style="color:${cat.col};font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${cat.icon} ${q.c}</div><div style="color:#475569;font-size:12px">Q${S.qIdx+1} of ${S.questions.length}</div></div>
-      <div style="text-align:right"><div style="color:#fff;font-size:13px;font-weight:700">${isGroup?esc(pl):esc(pl)+"'s turn"}</div><div style="color:#475569;font-size:12px">${S.scores[pl]} pts</div></div>
+      <div><div style="color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">${cat.icon} ${q.c}</div><div style="color:rgba(255,255,255,.78);font-size:12px">Q${S.qIdx+1} of ${S.questions.length}</div></div>
+      <div style="text-align:right"><div style="color:#fff;font-size:13px;font-weight:700">${isGroup?esc(pl):esc(pl)+"'s turn"}</div><div style="color:rgba(255,255,255,.78);font-size:12px">${S.scores[pl]} pts</div></div>
     </div>
     <div class="t-bar"><div class="t-fill" id="tf" style="width:${pct};background:${tcol}"></div></div>
     <div style="flex:1;padding:20px 18px;max-width:600px;width:100%;margin:0 auto">
-      <div id="tr" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:2px solid ${tcol}">
+      <div id="tr" style="width:56px;height:56px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:2px solid ${tcol}">
         <span id="tn" style="color:${tcol};font-weight:800;font-size:20px">${S.timer}</span>
       </div>
-      ${isGroup?`<div style="text-align:center;color:#475569;font-size:12px;margin-bottom:8px">Discuss as a group, then tap the answer</div>`:''}
-      <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:22px 20px;margin-bottom:16px;border:1px solid ${cat.col}30;text-align:center">
+      ${isGroup?`<div style="text-align:center;color:#6B7A8F;font-size:12px;margin-bottom:8px">Discuss as a group, then tap the answer</div>`:''}
+      <div style="background:#034EA1;border-radius:16px;padding:24px 22px;margin-bottom:16px;border:none;box-shadow:0 6px 18px rgba(3,78,161,.18);text-align:center">
         <p style="color:#fff;font-size:17px;font-weight:600;margin:0;line-height:1.55">${esc(q.q)}</p>
       </div>
       ${opts}${fb}
@@ -838,26 +902,26 @@ function rResults(){
   const rows=sorted.map(([n,s],i)=>`<div class="result-row ${i===0?'gold':''}">
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:26px">${['🥇','🥈','🥉'][i]||'🎖️'}</span>
-      <div><div style="color:#fff;font-weight:700;font-size:15px">${esc(n)}</div><div style="color:#475569;font-size:12px">Place ${i+1}</div></div>
+      <div><div style="color:#0F2A4A;font-weight:700;font-size:15px">${esc(n)}</div><div style="color:#6B7A8F;font-size:12px">Place ${i+1}</div></div>
     </div>
-    <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#1A5BA6'};font-weight:800;font-size:22px">${s}</div><div style="color:#475569;font-size:12px">pts</div></div>
+    <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#034EA1'};font-weight:800;font-size:22px">${s}</div><div style="color:#6B7A8F;font-size:12px">pts</div></div>
   </div>`).join('');
   let lbStatus='';
   if(lbConfigured()){
-    lbStatus = S.lbPosted===null ? '<div style="color:#475569;font-size:12px;margin-bottom:16px">Saving to leaderboard…</div>'
-      : S.lbPosted ? '<div style="color:#4ADE80;font-size:12px;margin-bottom:16px">✓ Scores saved to leaderboard</div>'
-      : '<div style="color:#F87171;font-size:12px;margin-bottom:16px">Could not save to leaderboard (will still work next game)</div>';
+    lbStatus = S.lbPosted===null ? '<div style="color:#6B7A8F;font-size:12px;margin-bottom:16px">Saving to leaderboard…</div>'
+      : S.lbPosted ? '<div style="color:#00843D;font-size:12px;margin-bottom:16px">✓ Scores saved to leaderboard</div>'
+      : '<div style="color:#C62828;font-size:12px;margin-bottom:16px">Could not save to leaderboard (will still work next game)</div>';
   }
   return `<div class="screen"><div class="wrap" style="text-align:center">
     ${logoHTML(true)}
-    <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Game Over</div>
-    <div style="color:#fff;font-size:28px;font-weight:800;margin-bottom:6px">Final Scores</div>
-    <div style="color:#475569;font-size:13px;margin-bottom:16px">Well played, everyone!</div>
+    <div style="color:#009040;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Game Over</div>
+    <div style="color:#0F2A4A;font-size:28px;font-weight:800;margin-bottom:6px">Final Scores</div>
+    <div style="color:#6B7A8F;font-size:13px;margin-bottom:16px">Well played, everyone!</div>
     ${lbStatus}
     <div style="margin-bottom:24px;text-align:left">${rows}</div>
-    <button class="btn btn-blue" onclick="reset()">Play Again</button>
-    <button onclick="openLeaderboard()" style="background:none;border:1px solid rgba(255,255,255,0.14);color:#94A3B8;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px;font-family:inherit">🏅 View Leaderboard</button>
-    <div style="margin-top:28px;color:#1a2e4a;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Edusport Travel and Tours</div>
+    <button class="btn btn-green" onclick="reset()">Play Again</button>
+    <button onclick="openLeaderboard()" style="background:none;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:12px;font-family:inherit">🏅 View Leaderboard</button>
+    <div style="margin-top:28px;color:#9AA8BA;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase">Edusport Travel and Tours</div>
   </div></div>`;
 }
 
@@ -865,26 +929,26 @@ function rLeaderboard(){
   let body;
   if(!lbConfigured()){
     if(S.lbSetup==='creating'){
-      body = `<div style="color:#475569;font-size:14px;padding:20px 0">Creating shared leaderboard…</div>`;
+      body = `<div style="color:#6B7A8F;font-size:14px;padding:20px 0">Creating shared leaderboard…</div>`;
     } else if(S.lbSetup && S.lbSetup.id){
-      body = `<div style="color:#94A3B8;font-size:14px;line-height:1.6;padding:16px 0">
-        <div style="color:#4ADE80;font-weight:700;margin-bottom:10px">✓ Leaderboard created</div>
-        <div style="margin-bottom:10px">This browser is already using it. For every other device to share the same board, paste this Bin ID into the <code style="color:#fff">LB_BIN_ID</code> constant near the top of the file, then redeploy:</div>
+      body = `<div style="color:#475569;font-size:14px;line-height:1.6;padding:16px 0">
+        <div style="color:#00843D;font-weight:700;margin-bottom:10px">✓ Leaderboard created</div>
+        <div style="margin-bottom:10px">This browser is already using it. For every other device to share the same board, paste this Bin ID into the <code style="color:#0F2A4A">LB_BIN_ID</code> constant near the top of the file, then redeploy:</div>
         <div class="input" style="user-select:all;font-family:monospace;font-size:13px;margin-bottom:10px">${esc(S.lbSetup.id)}</div>
       </div>`;
     } else {
       if(S.lbSetup==='error'){
-        body = `<div style="color:#F87171;font-size:13px;margin-bottom:14px">Couldn't create the leaderboard just now. Try again.</div>`;
+        body = `<div style="color:#C62828;font-size:13px;margin-bottom:14px">Couldn't create the leaderboard just now. Try again.</div>`;
       } else { body = ''; }
-      body += `<div style="color:#94A3B8;font-size:14px;line-height:1.6;padding:6px 0 16px">
+      body += `<div style="color:#475569;font-size:14px;line-height:1.6;padding:6px 0 16px">
         No shared leaderboard connected yet. This reuses the same JSONBin account already used for Passport Pro, so no new account is needed; just click below.
       </div>
       <button class="btn btn-gold" onclick="createLeaderboardBin()">Set Up Shared Leaderboard</button>`;
     }
   } else if(S.lbLoading){
-    body = `<div style="color:#475569;font-size:14px;padding:20px 0">Loading leaderboard…</div>`;
+    body = `<div style="color:#6B7A8F;font-size:14px;padding:20px 0">Loading leaderboard…</div>`;
   } else if(S.lbData===null){
-    body = `<div style="color:#F87171;font-size:14px;padding:20px 0">Couldn't load the leaderboard right now. Try again shortly.</div>`;
+    body = `<div style="color:#C62828;font-size:14px;padding:20px 0">Couldn't load the leaderboard right now. Try again shortly.</div>`;
   } else {
     const all = S.lbData.entries.map(e=>({...e, topic:e.topic||'Mixed'}));
     const topics = ['All', ...Array.from(new Set(all.map(e=>e.topic))).sort()];
@@ -893,12 +957,12 @@ function rLeaderboard(){
     const periodChips = ['All-Time','Month','Week'].map(p=>{
       const on = S.lbPeriod===p;
       return `<button class="cat-btn${on?' active':''}" onclick="setLbPeriod('${p}')"
-        style="${on?'background:#C8961A22;border-color:#C8961A;color:#fff;':''};font-size:12px;padding:8px 10px">${p==='All-Time'?'All-Time':'This '+p}</button>`;
+        style="${on?'background:#2B78C9;border-color:#2B78C9;color:#fff;':''};font-size:12px;padding:8px 10px">${p==='All-Time'?'All-Time':'This '+p}</button>`;
     }).join('');
     const topicChips = topics.map(t=>{
       const on = S.lbTopicFilter===t;
       return `<button class="cat-btn${on?' active':''}" onclick="setLbFilter('${esc(t).replace(/'/g,"\'")}')"
-        style="${on?'background:#1A5BA622;border-color:#1A5BA6;color:#fff;':''};font-size:12px;padding:8px 10px;white-space:nowrap">${esc(t)}</button>`;
+        style="${on?'background:#034EA1;border-color:#034EA1;color:#fff;':''};font-size:12px;padding:8px 10px;white-space:nowrap">${esc(t)}</button>`;
     }).join('');
 
     const byPeriod = periodFilter(all, S.lbPeriod);
@@ -914,10 +978,10 @@ function rLeaderboard(){
     const scoreRows = list => list.length ? list.map((e,i)=>`<div class="result-row ${i===0?'gold':''}">
       <div style="display:flex;align-items:center;gap:12px">
         <span style="font-size:22px">${['🥇','🥈','🥉'][i]||'🎖️'}</span>
-        <div><div style="color:#fff;font-weight:700;font-size:14px">${esc(e.name)}</div><div style="color:#475569;font-size:11px">${esc(e.topic)} · ${new Date(e.date).toLocaleDateString()}</div></div>
+        <div><div style="color:#0F2A4A;font-weight:700;font-size:14px">${esc(e.name)}</div><div style="color:#6B7A8F;font-size:11px">${esc(e.topic)} · ${new Date(e.date).toLocaleDateString()}</div></div>
       </div>
-      <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#1A5BA6'};font-weight:800;font-size:19px">${e.score}</div><div style="color:#475569;font-size:11px">pts</div></div>
-    </div>`).join('') : `<div style="color:#475569;font-size:13px;padding:12px 0">No scores yet for this filter.</div>`;
+      <div style="text-align:right"><div style="color:${i===0?'#C8961A':'#034EA1'};font-weight:800;font-size:19px">${e.score}</div><div style="color:#6B7A8F;font-size:11px">pts</div></div>
+    </div>`).join('') : `<div style="color:#6B7A8F;font-size:13px;padding:12px 0">No scores yet for this filter.</div>`;
 
     // Completion view: everyone who has played this topic/period (best score each), split by mode.
     const bestByName = list => {
@@ -928,10 +992,10 @@ function rLeaderboard(){
       });
       return Object.values(m).sort((a,b)=>a.name.localeCompare(b.name));
     };
-    const everyoneRows = list => list.length ? list.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-      <span style="color:#e2e8f0;font-size:12px">${esc(e.name)}</span>
-      <span style="color:#94A3B8;font-size:11px">${e.score} pts · ${new Date(e.date).toLocaleDateString()}</span>
-    </div>`).join('') : `<div style="color:#475569;font-size:12px;padding:6px 0">Nobody yet.</div>`;
+    const everyoneRows = list => list.length ? list.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #D8E1EC">
+      <span style="color:#1F3450;font-size:12px">${esc(e.name)}</span>
+      <span style="color:#475569;font-size:11px">${e.score} pts · ${new Date(e.date).toLocaleDateString()}</span>
+    </div>`).join('') : `<div style="color:#6B7A8F;font-size:12px;padding:6px 0">Nobody yet.</div>`;
 
     const groupTop = [...groupFiltered].sort((a,b)=>b.score-a.score).slice(0,5);
     const individualTop = [...individualFiltered].sort((a,b)=>b.score-a.score).slice(0,5);
@@ -943,17 +1007,17 @@ function rLeaderboard(){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${periodChips}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px">${topicChips}</div>
 
-      <div style="color:#2EA527;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">🏆 Group Scores${filterLabel}</div>
+      <div style="color:#009040;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">🏆 Group Scores${filterLabel}</div>
       ${scoreRows(groupTop)}
 
-      <div style="color:#1A5BA6;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:22px 0 10px">👤 Individual Scores${filterLabel}</div>
+      <div style="color:#034EA1;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:22px 0 10px">👤 Individual Scores${filterLabel}</div>
       ${scoreRows(individualTop)}
 
-      <div style="color:#64748B;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:26px 0 4px">Everyone Who's Played${filterLabel}</div>
-      <div style="color:#475569;font-size:11px;margin-bottom:10px">This lists who's played, it can't show who hasn't, there's no staff roster built in.</div>
-      <div style="color:#2EA527;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Groups (${groupEveryone.length})</div>
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:26px 0 4px">Everyone Who's Played${filterLabel}</div>
+      <div style="color:#6B7A8F;font-size:11px;margin-bottom:10px">This lists who's played, it can't show who hasn't, there's no staff roster built in.</div>
+      <div style="color:#009040;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Groups (${groupEveryone.length})</div>
       ${everyoneRows(groupEveryone)}
-      <div style="color:#1A5BA6;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px">Individuals (${individualEveryone.length})</div>
+      <div style="color:#034EA1;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:14px 0 6px">Individuals (${individualEveryone.length})</div>
       ${everyoneRows(individualEveryone)}
     `;
   }
@@ -961,44 +1025,44 @@ function rLeaderboard(){
     if(!lbConfigured()) return '';
     if(!S.lbData || S.lbLoading) return '';
     if(!S.lbMgrOpen){
-      return `<button onclick="openManagerTools()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:12px;margin-top:20px;font-family:inherit;text-decoration:underline">⚙ Manager Tools</button>`;
+      return `<button onclick="openManagerTools()" style="background:none;border:none;color:#6B7A8F;cursor:pointer;font-size:12px;margin-top:20px;font-family:inherit;text-decoration:underline">⚙ Manager Tools</button>`;
     }
     if(!S.lbMgrAuthed){
-      return `<div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;text-align:left">
-        <div style="color:#94A3B8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Manager Tools</div>
+      return `<div style="margin-top:20px;padding:16px;background:#EEF3F9;border-radius:12px;text-align:left">
+        <div style="color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Manager Tools</div>
         <input class="input" type="password" placeholder="Passcode" value="${esc(S.lbMgrPassInput)}"
           oninput="S.lbMgrPassInput=this.value" onkeydown="if(event.key==='Enter')tryManagerAuth()" style="margin-bottom:10px">
-        ${S.lbMgrMsg?`<div style="color:#F87171;font-size:12px;margin-bottom:10px">${esc(S.lbMgrMsg)}</div>`:''}
+        ${S.lbMgrMsg?`<div style="color:#C62828;font-size:12px;margin-bottom:10px">${esc(S.lbMgrMsg)}</div>`:''}
         <div style="display:flex;gap:8px">
           <button class="btn btn-blue" onclick="tryManagerAuth()" style="flex:1">Unlock</button>
-          <button onclick="closeManagerTools()" style="background:none;border:1px solid rgba(255,255,255,0.14);color:#94A3B8;border-radius:10px;padding:0 16px;cursor:pointer;font-family:inherit">Cancel</button>
+          <button onclick="closeManagerTools()" style="background:none;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:0 16px;cursor:pointer;font-family:inherit">Cancel</button>
         </div>
       </div>`;
     }
     const names = Array.from(new Set((S.lbData?S.lbData.entries:[]).map(e=>e.name))).sort((a,b)=>a.localeCompare(b));
-    const nameRows = names.length ? names.map(n=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
-      <span style="color:#e2e8f0;font-size:13px">${esc(n)}</span>
-      <button onclick="mgrRemoveName('${esc(n).replace(/'/g,"\'")}')" style="background:rgba(239,68,68,0.12);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>
-    </div>`).join('') : `<div style="color:#475569;font-size:12px;padding:6px 0">No names on the board yet.</div>`;
-    return `<div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.04);border-radius:12px;text-align:left">
+    const nameRows = names.length ? names.map(n=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #D8E1EC">
+      <span style="color:#1F3450;font-size:13px">${esc(n)}</span>
+      <button onclick="mgrRemoveName('${esc(n).replace(/'/g,"\'")}')" style="background:#FDECEC;border:1px solid #D32F2F;color:#B42318;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">Remove</button>
+    </div>`).join('') : `<div style="color:#6B7A8F;font-size:12px;padding:6px 0">No names on the board yet.</div>`;
+    return `<div style="margin-top:20px;padding:16px;background:#EEF3F9;border-radius:12px;text-align:left">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="color:#94A3B8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Manager Tools</div>
-        <button onclick="closeManagerTools()" style="background:none;border:none;color:#475569;cursor:pointer;font-size:18px;line-height:1;font-family:inherit">×</button>
+        <div style="color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Manager Tools</div>
+        <button onclick="closeManagerTools()" style="background:none;border:none;color:#6B7A8F;cursor:pointer;font-size:18px;line-height:1;font-family:inherit">×</button>
       </div>
-      ${S.lbMgrMsg?`<div style="color:#4ADE80;font-size:12px;margin-bottom:10px">${esc(S.lbMgrMsg)}</div>`:''}
-      <div style="color:#64748B;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Remove Someone (all their scores, everywhere)</div>
+      ${S.lbMgrMsg?`<div style="color:#00843D;font-size:12px;margin-bottom:10px">${esc(S.lbMgrMsg)}</div>`:''}
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Remove Someone (all their scores, everywhere)</div>
       <div style="max-height:160px;overflow-y:auto;margin-bottom:16px">${nameRows}</div>
-      <div style="color:#64748B;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Clear a Board</div>
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Clear a Board</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button onclick="mgrClear('Week')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear This Week</button>
-        <button onclick="mgrClear('Month')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear This Month</button>
-        <button onclick="mgrClear('all')" style="background:rgba(239,68,68,0.12);border:1px solid #EF4444;color:#FCA5A5;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear All-Time</button>
+        <button onclick="mgrClear('Week')" style="background:#FFFFFF;border:1px solid #D8E1EC;color:#1F3450;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear This Week</button>
+        <button onclick="mgrClear('Month')" style="background:#FFFFFF;border:1px solid #D8E1EC;color:#1F3450;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear This Month</button>
+        <button onclick="mgrClear('all')" style="background:#FDECEC;border:1px solid #D32F2F;color:#B42318;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:inherit">Clear All-Time</button>
       </div>
     </div>`;
   })();
   return `<div class="screen"><div class="wrap" style="text-align:center">
     ${logoHTML(true)}
-    <div style="color:#fff;font-size:28px;font-weight:800;margin-bottom:20px">Leaderboard</div>
+    <div style="color:#0F2A4A;font-size:28px;font-weight:800;margin-bottom:20px">Leaderboard</div>
     <div style="text-align:left;margin-bottom:8px">${body}</div>
     ${mgrPanel}
     <button class="btn btn-blue" onclick="goHome()" style="margin-top:20px">← Back Home</button>
