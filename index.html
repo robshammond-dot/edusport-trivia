@@ -129,6 +129,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   var PASSCODE = 'TriviaEd2026!@';   // change the team passcode here
   var KEY = 'edu_trivia_access';
 
+  // Sign out: forget this device and show the login screen again
+  window.eduSignOut = function(){
+    try { window.localStorage.removeItem(KEY); } catch(e){}
+    try { window.sessionStorage.removeItem(KEY); } catch(e){}
+    window.location.reload();
+  };
+
   var gate = document.getElementById('edu-gate');
 
   // Only show lane numbers that fit fully on screen, so none appear half cut off
@@ -796,6 +803,7 @@ function rHome(){
     </button>
     <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:28px">${cats}</div>
     <button onclick="openLeaderboard()" style="background:none;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:24px;font-family:inherit">🏅 View Leaderboard</button>
+    <div><button onclick="if(confirm('Sign out? You will need the team passcode to play again on this device.'))eduSignOut()" style="background:none;border:none;color:#6B7A8F;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-top:18px;padding:6px 10px;font-family:inherit">Sign out</button></div>
   </div></div>`;
 }
 
