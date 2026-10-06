@@ -250,19 +250,44 @@ const LOGO_B64='/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAEYBAwDACIAAREBAhEB/9sAQwAIBgYH
 // "Edusport Trivia Leaderboard" Google Sheet. Never point it at any other
 // client's Sheet or script.
 const LB_URL = 'https://script.google.com/macros/s/AKfycbxJQTfLZ5Yi3G6N1vjOkL_jxUhbX5LpziPV8KKglz7uPEpnYdmLf1R3lSU_ya6Lee1_Ag/exec'; // Edusport Trivia Leaderboard Sheet (Apps Script web app)
+// In-page "Are you sure?" box. Browser pop-ups (confirm) are blocked in some
+// browsers, such as embedded app browsers, so actions would silently stop.
+function askConfirm(msg){
+  return new Promise(resolve=>{
+    const old=document.getElementById('edu-confirm'); if(old) old.remove();
+    const wrap=document.createElement('div');
+    wrap.id='edu-confirm';
+    wrap.setAttribute('role','dialog'); wrap.setAttribute('aria-modal','true');
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit';
+    wrap.innerHTML='<div style="background:#fff;border-radius:16px;max-width:380px;width:100%;padding:22px 20px;box-shadow:0 20px 50px rgba(3,78,161,.25);text-align:left">'
+      +'<div data-msg="1" style="color:#0F2A4A;font-size:15px;font-weight:700;line-height:1.45;margin-bottom:18px"></div>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+      +'<button type="button" data-a="no" style="background:#fff;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">Cancel</button>'
+      +'<button type="button" data-a="yes" style="background:#034EA1;border:none;color:#fff;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">Yes, go ahead</button>'
+      +'</div></div>';
+    wrap.querySelector('[data-msg]').textContent=msg;
+    const done=v=>{ wrap.remove(); document.removeEventListener('keydown',onKey); resolve(v); };
+    const onKey=e=>{ if(e.key==='Escape') done(false); };
+    wrap.addEventListener('click',e=>{ const a=e.target.getAttribute&&e.target.getAttribute('data-a'); if(a) done(a==='yes'); else if(e.target===wrap) done(false); });
+    document.addEventListener('keydown',onKey);
+    document.body.appendChild(wrap);
+    try{ wrap.querySelector('[data-a=yes]').focus(); }catch(e){}
+  });
+}
 function lbConfigured(){ return !!LB_URL; }
-// Every call to the Sheet gives up after 12 seconds instead of hanging forever.
+// Every call to the Sheet has a time limit instead of hanging forever.
 // (A plain race with a timer, so it also works in browsers that proxy fetch.)
 function fetchT(url, opts, ms){
   let timer;
   const timeout = new Promise((_, rej)=>{ timer = setTimeout(()=>rej(new Error('timed out')), ms||12000); });
-  return Promise.race([fetch(url, opts||{}), timeout]).finally(()=>clearTimeout(timer));
+  // credentials:'omit' stops a signed-in Google account in the browser from breaking the request.
+  return Promise.race([fetch(url, Object.assign({credentials:'omit', redirect:'follow'}, opts||{})), timeout]).finally(()=>clearTimeout(timer));
 }
 async function lbFetch(){
   if(!lbConfigured()) return {entries:[]};
   for(let attempt=0; attempt<3; attempt++){
     try{
-      const res = await fetchT(LB_URL, {cache:'no-store'});
+      const res = await fetchT(LB_URL, {cache:'no-store'}, 30000);
       if(!res.ok) throw new Error('fetch failed: '+res.status);
       const data = await res.json();
       if(!Array.isArray(data.entries)) throw new Error('no entries');
@@ -282,10 +307,10 @@ function newId(){
 async function lbPost(payload){
   if(!lbConfigured()) return {ok:false};
   // Saves carry an id, so retrying is always safe (the Sheet ignores repeats).
-  const tries = 6;
+  const tries = 4;
   for(let attempt=0; attempt<tries; attempt++){
     try{
-      const res = await fetchT(LB_URL, {method:'POST', body: JSON.stringify(payload)}, 20000);
+      const res = await fetchT(LB_URL, {method:'POST', body: JSON.stringify(payload)}, 45000);
       if(!res.ok) throw new Error('post failed: '+res.status);
       const data = await res.json();
       if(data && data.error==='busy') throw new Error('busy');
@@ -325,7 +350,7 @@ setTimeout(async function(){
 async function mgrSetMgrPass(){
   const np=(S.newMgrPass||'').trim();
   if(np.length<6){ S.lbMgrMsg='New manager passcode needs at least 6 characters.'; render(); return; }
-  if(!confirm('Change the manager passcode to "'+np+'"? Anyone using the old one will lose access to Manager Tools.')) return;
+  if(!(await askConfirm('Change the manager passcode to "'+np+'"? Anyone using the old one will lose access to Manager Tools.'))) return;
   S.lbMgrMsg='Saving…'; render();
   const r=await lbPost({action:'setMgrPass', pass:S.mgrAuthPass, value:np});
   if(r.ok){ S.mgrPass=np; S.mgrAuthPass=np; S.newMgrPass=''; S.lbMgrMsg='Manager passcode changed.'; }
@@ -335,7 +360,7 @@ async function mgrSetMgrPass(){
 async function mgrSetTeamPass(){
   const np=(S.newTeamPass||'').trim();
   if(np.length<6){ S.lbMgrMsg='New passcode needs at least 6 characters.'; render(); return; }
-  if(!confirm('Change the team passcode to "'+np+'"? Everyone else will be signed out and need the new passcode.')) return;
+  if(!(await askConfirm('Change the team passcode to "'+np+'"? Everyone else will be signed out and need the new passcode.'))) return;
   S.lbMgrMsg='Saving…'; render();
   const r=await lbPost({action:'setTeamPass', pass:S.mgrAuthPass, value:np});
   if(r.ok){
@@ -386,7 +411,7 @@ async function mgrAddScore(){
   const name=(S.addName||'').trim(), score=Number(S.addScore), topic=S.addTopic||'Mixed';
   if(!name){ S.lbMgrMsg='Enter the player\'s name.'; render(); return; }
   if(!Number.isFinite(score) || score<0 || score>10000 || String(S.addScore||'').trim()===''){ S.lbMgrMsg='Enter a score (a number, 0 or more).'; render(); return; }
-  if(!confirm('Add '+score+' pts for "'+name+'" ('+topic+') to the leaderboard?')) return;
+  if(!(await askConfirm('Add '+score+' pts for "'+name+'" ('+topic+') to the leaderboard?'))) return;
   S.lbMgrMsg='Adding…'; render();
   const r = await lbPost({action:'add', entries:[{name:name.slice(0,60), score:score, mode:'manual', topic:topic, date:new Date().toISOString(), id:newId()}]});
   if(r.ok){ S.addName=''; S.addScore=''; S.lbMgrMsg='Score added for '+name+'.'; const data=await lbFetch(); if(data) S.lbData=data; }
@@ -394,7 +419,7 @@ async function mgrAddScore(){
   render();
 }
 async function mgrRemoveName(name){
-  if(!confirm('Remove all of "'+name+'"\'s scores from the leaderboard? This can\'t be undone.')) return;
+  if(!(await askConfirm('Remove all of "'+name+'"\'s scores from the leaderboard? This can\'t be undone.'))) return;
   S.lbMgrMsg='Removing…';render();
   const r = await lbPost({action:'removeName', pass:S.mgrAuthPass, name:name});
   S.lbMgrMsg = r.ok ? 'Removed.' : 'Could not remove. Try again.';
@@ -403,7 +428,7 @@ async function mgrRemoveName(name){
 }
 async function mgrClear(period){
   const label = period==='all' ? 'ALL scores (every period)' : period==='Week' ? 'this week\'s scores' : 'this month\'s scores';
-  if(!confirm('Clear '+label+'? This can\'t be undone.')) return;
+  if(!(await askConfirm('Clear '+label+'? This can\'t be undone.'))) return;
   S.lbMgrMsg='Clearing…';render();
   const r = await lbPost({action:'clear', pass:S.mgrAuthPass, period:period});
   S.lbMgrMsg = r.ok ? 'Cleared.' : 'Could not clear. Try again.';
@@ -902,7 +927,7 @@ function rHome(){
     </button>
     <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:28px">${cats}</div>
     <button onclick="openLeaderboard()" style="background:none;border:1px solid #D8E1EC;color:#475569;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;margin-top:24px;font-family:inherit">🏅 View Leaderboard</button>
-    <div><button onclick="if(confirm('Sign out? You will need the team passcode to play again on this device.'))eduSignOut()" style="background:none;border:none;color:#6B7A8F;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-top:18px;padding:6px 10px;font-family:inherit">Sign out</button></div>
+    <div><button onclick="askConfirm('Sign out? You will need the team passcode to play again on this device.').then(ok=>{if(ok)eduSignOut()})" style="background:none;border:none;color:#6B7A8F;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-top:18px;padding:6px 10px;font-family:inherit">Sign out</button></div>
   </div></div>`;
 }
 
