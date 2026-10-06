@@ -248,7 +248,7 @@ const LOGO_B64='/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAEYBAwDACIAAREBAhEB/9sAQwAIBgYH
 // Edusport ONLY. This is the web app URL of the Apps Script attached to the
 // "Edusport Trivia Leaderboard" Google Sheet. Never point it at any other
 // client's Sheet or script.
-const LB_URL = ''; // <-- paste the Apps Script web app URL here (ends in /exec)
+const LB_URL = 'https://script.google.com/macros/s/AKfycbxJQTfLZ5Yi3G6N1vjOkL_jxUhbX5LpziPV8KKglz7uPEpnYdmLf1R3lSU_ya6Lee1_Ag/exec'; // Edusport Trivia Leaderboard Sheet (Apps Script web app)
 function lbConfigured(){ return !!LB_URL; }
 async function lbFetch(){
   if(!lbConfigured()) return {entries:[]};
