@@ -306,6 +306,16 @@ function fetchT(url, opts, ms){
   // Plain fetch; saves send a text/plain body (no CORS preflight).
   return Promise.race([fetch(url, opts||{}), timeout]).finally(()=>clearTimeout(timer));
 }
+// ---- Device copy of the leaderboard: shown instantly, refreshed in the background ----
+const LB_CACHE_KEY='edu_trivia_lb_cache_v1';
+function lbRemember(d){
+  S.lbData=d; S.lbFresh=true;
+  try{ localStorage.setItem(LB_CACHE_KEY, JSON.stringify(d)); }catch(e){}
+  return d;
+}
+function lbLoadDeviceCopy(){
+  try{ const c=JSON.parse(localStorage.getItem(LB_CACHE_KEY)||'null'); if(c && Array.isArray(c.entries)){ S.lbData=c; S.lbFresh=false; } }catch(e){}
+}
 async function lbFetch(){
   if(!lbConfigured()) return {entries:[]};
   for(let attempt=0; attempt<3; attempt++){
@@ -314,7 +324,7 @@ async function lbFetch(){
       if(!res.ok) throw new Error('fetch failed: '+res.status);
       const data = await res.json();
       if(!Array.isArray(data.entries)) throw new Error('no entries');
-      return {entries: data.entries, teamPass: data.teamPass||'', mgrHash: data.mgrHash||''};
+      return lbRemember({entries: data.entries, teamPass: data.teamPass||'', mgrHash: data.mgrHash||''});
     }catch(e){
       if(attempt<2) await new Promise(r=>setTimeout(r, 800*(attempt+1)));
       else console.warn('Leaderboard could not be loaded just now', e);
@@ -383,16 +393,28 @@ async function lbSave(newEntries){
 }
 async function postGameScores(){
   const entries = S.players.map(p=>({name:p, score:S.scores[p]||0, mode:S.mode, topic:S.playTopic||'Mixed', date:new Date().toISOString(), id:newId()}));
+  if(S.lbData && Array.isArray(S.lbData.entries)){
+    const have=new Set(S.lbData.entries.map(e=>e.id));
+    S.lbData={...S.lbData, entries:S.lbData.entries.concat(entries.filter(e=>!have.has(e.id)))};
+    try{ localStorage.setItem(LB_CACHE_KEY, JSON.stringify(S.lbData)); }catch(e){}
+  }
   S.lbPosted = await lbSave(entries);
-  render();
+  if(S.screen==='results' || S.screen==='leaderboard') render();
 }
 async function openLeaderboard(){
-  S.screen='leaderboard';S.lbLoading=true;S.lbData=null;render();
+  S.screen='leaderboard';
+  if(S.lbData){ S.lbLoading=false; S.lbRefreshing=true; }
+  else { S.lbLoading=true; S.lbRefreshing=false; }
+  render();
   const data = await lbFetch();
-  S.lbLoading=false;S.lbData=data;render();
+  S.lbLoading=false; S.lbRefreshing=false;
+  if(data){ S.lbData=data; S.lbStale=false; }
+  else if(S.lbData) S.lbStale=true;
+  if(S.screen==='leaderboard') render();
 }
 // ---- Team passcode (stored in Edusport's Sheet, changeable in Manager Tools) ----
 setTimeout(async function(){
+  lbLoadDeviceCopy(); // runs once the game has finished starting up
   let p=null;
   try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass){ p=d.teamPass; try{ localStorage.setItem('edu_trivia_live_pass', p); }catch(e){} } } }catch(e){}
   // Sheet unreachable: use the last passcode this device saw, never just the default.
@@ -451,8 +473,10 @@ async function tryManagerAuth(){
   S.lbMgrMsg='Checking…'; render();
   let r = null;
   const h = (S.lbData && S.lbData.mgrHash) ? await sha16(S.lbMgrPassInput) : '';
-  if(h){
-    r = (S.lbData.mgrHash===h) ? {ok:true, mgrPass:S.lbMgrPassInput, teamPass:S.lbData.teamPass} : {ok:false, error:'bad pass'};
+  if(h && S.lbData.mgrHash===h){
+    r = {ok:true, mgrPass:S.lbMgrPassInput, teamPass:S.lbData.teamPass};
+  } else if(h && S.lbFresh){
+    r = {ok:false, error:'bad pass'};
   }
   if(!r) r = await lbPost({action:'checkMgr', pass:S.lbMgrPassInput});
   S.lbMgrAuthed = !!r.ok;
@@ -1195,6 +1219,8 @@ function rLeaderboard(){
     const filterLabel = (S.lbTopicFilter!=='All'?' | '+esc(S.lbTopicFilter):'') + periodLabel;
 
     body = `
+      ${S.lbRefreshing?'<div style="color:#6B7A8F;font-size:12px;margin-bottom:10px">Updating…</div>':''}
+      ${(!S.lbRefreshing && S.lbStale)?'<div style="color:#B42318;font-size:12px;margin-bottom:10px">Showing the last saved copy; couldn\'t refresh just now. <button onclick="openLeaderboard()" style="background:none;border:none;color:#034EA1;font-weight:700;cursor:pointer;padding:0;font-family:inherit;font-size:12px;text-decoration:underline">Try again</button></div>':''}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${periodChips}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px">${topicChips}</div>
 
