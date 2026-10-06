@@ -134,7 +134,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
   // The live passcode is read from Edusport's leaderboard bin by the game script below.
   var resolvePass, passReady = new Promise(function(r){ resolvePass = r; });
   window.eduSetTeamPass = function(p){ resolvePass(p || PASSCODE); };
-  setTimeout(function(){ resolvePass(PASSCODE); }, 8000);
+  var lastKnown = null; try { lastKnown = window.localStorage.getItem('edu_trivia_live_pass'); } catch(e){}
+  setTimeout(function(){ resolvePass(lastKnown || PASSCODE); }, 15000);
 
   // Sign out: forget this device and show the login screen again
   window.eduSignOut = function(){
@@ -252,24 +253,41 @@ const LB_URL = 'https://script.google.com/macros/s/AKfycbxJQTfLZ5Yi3G6N1vjOkL_jx
 function lbConfigured(){ return !!LB_URL; }
 async function lbFetch(){
   if(!lbConfigured()) return {entries:[]};
-  try{
-    const res = await fetch(LB_URL, {cache:'no-store'});
-    if(!res.ok) throw new Error('fetch failed: '+res.status);
-    const data = await res.json();
-    return {entries: Array.isArray(data.entries)?data.entries:[], teamPass: data.teamPass||''};
-  }catch(e){ console.error('Leaderboard fetch error', e); return null; }
+  for(let attempt=0; attempt<3; attempt++){
+    try{
+      const res = await fetch(LB_URL, {cache:'no-store'});
+      if(!res.ok) throw new Error('fetch failed: '+res.status);
+      const data = await res.json();
+      if(!Array.isArray(data.entries)) throw new Error('no entries');
+      return {entries: data.entries, teamPass: data.teamPass||''};
+    }catch(e){
+      if(attempt<2) await new Promise(r=>setTimeout(r, 800*(attempt+1)));
+      else console.warn('Leaderboard could not be loaded just now', e);
+    }
+  }
+  return null;
+}
+function newId(){
+  try{ if(crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,10);
 }
 // POST as plain text so the browser sends a simple request (no CORS preflight).
 async function lbPost(payload){
   if(!lbConfigured()) return {ok:false};
-  for(let attempt=0; attempt<3; attempt++){
+  // Saves carry an id, so retrying is always safe (the Sheet ignores repeats).
+  const tries = 6;
+  for(let attempt=0; attempt<tries; attempt++){
     try{
       const res = await fetch(LB_URL, {method:'POST', body: JSON.stringify(payload)});
       if(!res.ok) throw new Error('post failed: '+res.status);
-      return await res.json();
+      const data = await res.json();
+      if(data && data.error==='busy') throw new Error('busy');
+      // A save is safe to repeat (it carries an id), so keep going until it's confirmed.
+      if(payload.action==='add' && !(data && data.ok)) throw new Error('not confirmed');
+      return data;
     }catch(e){
-      console.error('Leaderboard request attempt '+(attempt+1)+' failed', e);
-      if(attempt<2) await new Promise(r=>setTimeout(r, 600*(attempt+1)));
+      if(attempt<tries-1) await new Promise(r=>setTimeout(r, 1000*(attempt+1) + Math.random()*1000));
+      else console.warn('Leaderboard request did not go through', e);
     }
   }
   return {ok:false};
@@ -279,7 +297,7 @@ async function lbSave(newEntries){
   return !!r.ok;
 }
 async function postGameScores(){
-  const entries = S.players.map(p=>({name:p, score:S.scores[p]||0, mode:S.mode, topic:S.playTopic||'Mixed', date:new Date().toISOString()}));
+  const entries = S.players.map(p=>({name:p, score:S.scores[p]||0, mode:S.mode, topic:S.playTopic||'Mixed', date:new Date().toISOString(), id:newId()}));
   S.lbPosted = await lbSave(entries);
   render();
 }
@@ -291,7 +309,9 @@ async function openLeaderboard(){
 // ---- Team passcode (stored in Edusport's Sheet, changeable in Manager Tools) ----
 setTimeout(async function(){
   let p=null;
-  try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass) p=d.teamPass; } }catch(e){}
+  try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass){ p=d.teamPass; try{ localStorage.setItem('edu_trivia_live_pass', p); }catch(e){} } } }catch(e){}
+  // Sheet unreachable: use the last passcode this device saw, never just the default.
+  if(!p){ try{ p=localStorage.getItem('edu_trivia_live_pass')||null; }catch(e){} }
   S.teamPass = p;
   if(window.eduSetTeamPass) window.eduSetTeamPass(p);
 }, 0);
@@ -348,6 +368,22 @@ async function tryManagerAuth(){
   S.lbMgrAuthed = !!r.ok;
   if(r.ok){ S.mgrAuthPass=S.lbMgrPassInput; S.mgrPass=r.mgrPass; S.teamPass=r.teamPass||S.teamPass; S.lbMgrMsg=''; }
   else S.lbMgrMsg = r.error==='bad pass' ? 'Incorrect passcode.' : 'Could not check the passcode. Try again.';
+  render();
+}
+function manualTopics(){
+  const out=['Mixed'];
+  Object.keys(CAT).forEach(c=>{ out.push(c); (SUBS[c]||[]).forEach(s=>out.push(s)); });
+  return out;
+}
+async function mgrAddScore(){
+  const name=(S.addName||'').trim(), score=Number(S.addScore), topic=S.addTopic||'Mixed';
+  if(!name){ S.lbMgrMsg='Enter the player\'s name.'; render(); return; }
+  if(!Number.isFinite(score) || score<0 || score>10000 || String(S.addScore||'').trim()===''){ S.lbMgrMsg='Enter a score (a number, 0 or more).'; render(); return; }
+  if(!confirm('Add '+score+' pts for "'+name+'" ('+topic+') to the leaderboard?')) return;
+  S.lbMgrMsg='Adding…'; render();
+  const r = await lbPost({action:'add', entries:[{name:name.slice(0,60), score:score, mode:'manual', topic:topic, date:new Date().toISOString(), id:newId()}]});
+  if(r.ok){ S.addName=''; S.addScore=''; S.lbMgrMsg='Score added for '+name+'.'; const data=await lbFetch(); if(data) S.lbData=data; }
+  else S.lbMgrMsg='Could not add the score. Try again.';
   render();
 }
 async function mgrRemoveName(name){
@@ -1130,6 +1166,14 @@ function rLeaderboard(){
         <button onclick="mgrSetMgrPass()" style="background:#034EA1;color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit">Change</button>
       </div>
       <div style="color:#6B7A8F;font-size:11px;margin-bottom:16px">Use this when a manager leaves.</div>
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Add a Score</div>
+      <div style="color:#475569;font-size:12px;margin-bottom:8px">For a game whose score didn't save.</div>
+      <input class="input" type="text" placeholder="Player name" value="${esc(S.addName||'')}" oninput="S.addName=this.value" style="padding:9px 12px;font-size:14px;margin-bottom:6px">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input class="input" type="number" min="0" inputmode="numeric" placeholder="Score" value="${esc(S.addScore||'')}" oninput="S.addScore=this.value" style="padding:9px 12px;font-size:14px;max-width:110px">
+        <select class="input" onchange="S.addTopic=this.value" style="padding:9px 12px;font-size:14px">${manualTopics().map(tp=>`<option value="${esc(tp)}"${(S.addTopic||'Mixed')===tp?' selected':''}>${esc(tp)}</option>`).join('')}</select>
+      </div>
+      <button onclick="mgrAddScore()" style="background:#009040;color:#fff;border:none;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:16px">Add Score</button>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Remove Someone (all their scores, everywhere)</div>
       <div style="max-height:160px;overflow-y:auto;margin-bottom:16px">${nameRows}</div>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Clear a Board</div>
