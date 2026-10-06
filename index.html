@@ -65,9 +65,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
      Paste this whole block directly AFTER the opening <body> tag
      in index.html. Nothing else in the game needs to change.
 
-     TO CHANGE THE PASSCODE: edit the line below that reads
-       var PASSCODE = 'TriviaEd2026!@';
-     Changing it signs everyone out, so they will need the new code.
+     TO CHANGE THE PASSCODE: use Leaderboard > Manager Tools >
+     Change Team Passcode inside the game. The new passcode is saved
+     to Edusport's leaderboard bin and signs everyone else out.
+     The PASSCODE line below is only a fallback, used until a
+     manager sets one in the game or if the bin can't be reached.
 
      Note: this keeps casual visitors out. It is not real security,
      as the passcode can be found by viewing the page source.
@@ -127,8 +129,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
 <script>
 (function(){
-  var PASSCODE = 'TriviaEd2026!@';   // change the team passcode here
+  var PASSCODE = 'TriviaEd2026!@';   // fallback only; change it in Manager Tools
   var KEY = 'edu_trivia_access';
+  // The live passcode is read from Edusport's leaderboard bin by the game script below.
+  var resolvePass, passReady = new Promise(function(r){ resolvePass = r; });
+  window.eduSetTeamPass = function(p){ resolvePass(p || PASSCODE); };
+  setTimeout(function(){ resolvePass(PASSCODE); }, 8000);
 
   // Sign out: forget this device and show the login screen again
   window.eduSignOut = function(){
@@ -182,7 +188,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
   // Already signed in on this device (and the passcode hasn't changed)?
   var saved = read(window.localStorage) || read(window.sessionStorage);
-  if (saved && norm(saved) === norm(PASSCODE)) { unlock(); return; }
+  var panel = gate.querySelector('.eg-panel');
+  if (saved) {
+    panel.style.visibility = 'hidden';
+    passReady.then(function(p){
+      if (norm(saved) === norm(p)) { if (gate.parentNode) unlock(); }
+      else { panel.style.visibility = ''; }
+    });
+  }
 
   document.documentElement.style.overflow = 'hidden';
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setInert(true); });
@@ -206,15 +219,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     e.preventDefault();
     var val = input.value;
     if (!norm(val)) { err.textContent = 'Enter the team passcode to continue.'; input.classList.add('eg-bad'); input.focus(); return; }
-    if (norm(val) !== norm(PASSCODE)) {
+    err.textContent = 'Checking…';
+    passReady.then(function(LIVE){
+    err.textContent = '';
+    if (norm(val) !== norm(LIVE)) {
       err.textContent = "That passcode isn't right. Check with your team leader and try again.";
       input.classList.add('eg-bad'); input.select();
       gate.classList.remove('eg-shake'); void gate.offsetWidth; gate.classList.add('eg-shake');
       return;
     }
     var remember = document.getElementById('eg-remember').checked;
-    write(remember ? window.localStorage : window.sessionStorage, PASSCODE);
+    write(remember ? window.localStorage : window.sessionStorage, LIVE);
     unlock();
+    });
   });
 })();
 </script>
@@ -281,7 +298,7 @@ async function lbModify(transformFn){
       const res = await fetch(lbBase(), {
         method:'PUT',
         headers:{'Content-Type':'application/json','X-Master-Key':LB_API_KEY},
-        body: JSON.stringify({entries: updated})
+        body: JSON.stringify(Object.assign({}, current, {entries: updated}))
       });
       if(!res.ok) throw new Error('write failed: '+res.status);
       return true;
@@ -304,6 +321,36 @@ async function openLeaderboard(){
   S.screen='leaderboard';S.lbLoading=true;S.lbData=null;render();
   const data = await lbFetch();
   S.lbLoading=false;S.lbData=data;render();
+}
+// ---- Team passcode (stored in Edusport's bin, changeable in Manager Tools) ----
+(async function(){
+  let p=null;
+  try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass) p=d.teamPass; } }catch(e){}
+  S.teamPass = p;
+  if(window.eduSetTeamPass) window.eduSetTeamPass(p);
+})();
+async function mgrSetTeamPass(){
+  const np=(S.newTeamPass||'').trim();
+  if(np.length<6){ S.lbMgrMsg='New passcode needs at least 6 characters.'; render(); return; }
+  if(!confirm('Change the team passcode to "'+np+'"? Everyone else will be signed out and need the new passcode.')) return;
+  S.lbMgrMsg='Saving…'; render();
+  let ok=false;
+  for(let attempt=0; attempt<3 && !ok; attempt++){
+    try{
+      const current=await lbFetch();
+      if(current===null) throw new Error('read failed');
+      const res=await fetch(lbBase(),{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LB_API_KEY},
+        body:JSON.stringify(Object.assign({}, current, {teamPass:np}))});
+      if(!res.ok) throw new Error('write failed: '+res.status);
+      ok=true;
+    }catch(e){ console.error('Passcode change failed', e); }
+  }
+  if(ok){
+    S.teamPass=np; S.newTeamPass='';
+    try{ localStorage.setItem('edu_trivia_access', np); }catch(e){}
+    S.lbMgrMsg='Team passcode changed. Everyone else needs the new one next time they open the game.';
+  } else S.lbMgrMsg='Could not change the passcode. Try again.';
+  render();
 }
 function setLbFilter(topic){ S.lbTopicFilter=topic; render(); }
 function setLbPeriod(p){ S.lbPeriod=p; render(); }
@@ -1125,6 +1172,14 @@ function rLeaderboard(){
         <button onclick="closeManagerTools()" style="background:none;border:none;color:#6B7A8F;cursor:pointer;font-size:18px;line-height:1;font-family:inherit">×</button>
       </div>
       ${S.lbMgrMsg?`<div style="color:#00843D;font-size:12px;margin-bottom:10px">${esc(S.lbMgrMsg)}</div>`:''}
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Change Team Passcode</div>
+      <div style="color:#475569;font-size:12px;margin-bottom:8px">Current passcode: <strong style="color:#0F2A4A">${esc(S.teamPass||'TriviaEd2026!@')}</strong></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input class="input" type="text" placeholder="New passcode (6+ characters)" value="${esc(S.newTeamPass||'')}"
+          oninput="S.newTeamPass=this.value" onkeydown="if(event.key==='Enter')mgrSetTeamPass()" style="padding:9px 12px;font-size:14px">
+        <button onclick="mgrSetTeamPass()" style="background:#034EA1;color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit">Change</button>
+      </div>
+      <div style="color:#6B7A8F;font-size:11px;margin-bottom:16px">Use this when someone leaves. It signs everyone else out.</div>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Remove Someone (all their scores, everywhere)</div>
       <div style="max-height:160px;overflow-y:auto;margin-bottom:16px">${nameRows}</div>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Clear a Board</div>
