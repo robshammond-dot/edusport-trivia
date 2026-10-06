@@ -325,10 +325,33 @@ async function openLeaderboard(){
 // ---- Team passcode (stored in Edusport's bin, changeable in Manager Tools) ----
 (async function(){
   let p=null;
-  try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass) p=d.teamPass; } }catch(e){}
+  try{ if(lbConfigured()){ const d=await lbFetch(); if(d && d.teamPass) p=d.teamPass; if(d && d.mgrPass) S.mgrPass=d.mgrPass; } }catch(e){}
   S.teamPass = p;
   if(window.eduSetTeamPass) window.eduSetTeamPass(p);
 })();
+async function lbSetField(field, value){
+  for(let attempt=0; attempt<3; attempt++){
+    try{
+      const current=await lbFetch();
+      if(current===null) throw new Error('read failed');
+      const res=await fetch(lbBase(),{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':LB_API_KEY},
+        body:JSON.stringify(Object.assign({}, current, {[field]:value}))});
+      if(!res.ok) throw new Error('write failed: '+res.status);
+      return true;
+    }catch(e){ console.error('Saving '+field+' failed', e); }
+  }
+  return false;
+}
+async function mgrSetMgrPass(){
+  const np=(S.newMgrPass||'').trim();
+  if(np.length<6){ S.lbMgrMsg='New manager passcode needs at least 6 characters.'; render(); return; }
+  if(!confirm('Change the manager passcode to "'+np+'"? Anyone using the old one will lose access to Manager Tools.')) return;
+  S.lbMgrMsg='Saving…'; render();
+  const ok=await lbSetField('mgrPass', np);
+  if(ok){ S.mgrPass=np; S.newMgrPass=''; S.lbMgrMsg='Manager passcode changed.'; }
+  else S.lbMgrMsg='Could not change the manager passcode. Try again.';
+  render();
+}
 async function mgrSetTeamPass(){
   const np=(S.newTeamPass||'').trim();
   if(np.length<6){ S.lbMgrMsg='New passcode needs at least 6 characters.'; render(); return; }
@@ -375,11 +398,11 @@ function periodFilter(entries, period){
 
 // ---- Manager tools (passcode-gated) ----
 // Change this before deploying if you want a different passcode.
-const LB_MANAGER_PASS = 'edusport2026';
+const LB_MANAGER_PASS = 'edusport2026'; // fallback only; change it in Manager Tools
 function openManagerTools(){ S.lbMgrOpen=true; S.lbMgrAuthed=false; S.lbMgrPassInput=''; S.lbMgrMsg=''; render(); }
 function closeManagerTools(){ S.lbMgrOpen=false; render(); }
 function tryManagerAuth(){
-  S.lbMgrAuthed = (S.lbMgrPassInput===LB_MANAGER_PASS);
+  S.lbMgrAuthed = (S.lbMgrPassInput===(S.mgrPass||LB_MANAGER_PASS));
   S.lbMgrMsg = S.lbMgrAuthed ? '' : 'Incorrect passcode.';
   render();
 }
@@ -1180,6 +1203,14 @@ function rLeaderboard(){
         <button onclick="mgrSetTeamPass()" style="background:#034EA1;color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit">Change</button>
       </div>
       <div style="color:#6B7A8F;font-size:11px;margin-bottom:16px">Use this when someone leaves. It signs everyone else out.</div>
+      <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Change Manager Passcode</div>
+      <div style="color:#475569;font-size:12px;margin-bottom:8px">Current manager passcode: <strong style="color:#0F2A4A">${esc(S.mgrPass||LB_MANAGER_PASS)}</strong></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input class="input" type="text" placeholder="New manager passcode (6+ characters)" value="${esc(S.newMgrPass||'')}"
+          oninput="S.newMgrPass=this.value" onkeydown="if(event.key==='Enter')mgrSetMgrPass()" style="padding:9px 12px;font-size:14px">
+        <button onclick="mgrSetMgrPass()" style="background:#034EA1;color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit">Change</button>
+      </div>
+      <div style="color:#6B7A8F;font-size:11px;margin-bottom:16px">Use this when a manager leaves.</div>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Remove Someone (all their scores, everywhere)</div>
       <div style="max-height:160px;overflow-y:auto;margin-bottom:16px">${nameRows}</div>
       <div style="color:#6B7A8F;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Clear a Board</div>
