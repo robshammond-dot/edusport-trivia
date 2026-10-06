@@ -234,7 +234,7 @@ const LOGO_B64='/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAEYBAwDACIAAREBAhEB/9sAQwAIBgYH
 // Leaderboard" on the Leaderboard screen once and paste the Bin ID it gives you
 // into LB_BIN_ID, then redeploy again.
 const LB_API_KEY = '$2a$10$UaAutAYg1juoagY9gaadO.LprSFQqt57GSo2yjIVhWg49V/3UmCXu'; // Edusport's own JSONBin X-Master-Key
-let LB_BIN_ID = ''; // <-- paste the Bin ID here once created
+let LB_BIN_ID = '6ac4ac5affd5d1605351d370'; // Edusport's own leaderboard bin
 try{ if(!LB_BIN_ID){ const cached=localStorage.getItem('edusport_trivia_lb_bin_own'); if(cached) LB_BIN_ID=cached; } }catch{}
 function lbHasKey(){ return !!LB_API_KEY; }
 function lbConfigured(){ return lbHasKey() && !!LB_BIN_ID; }
