@@ -131,11 +131,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 (function(){
   var PASSCODE = 'TriviaEd2026!@';   // fallback only; change it in Manager Tools
   var KEY = 'edu_trivia_access';
-  // The live passcode is read from Edusport's leaderboard bin by the game script below.
-  var resolvePass, passReady = new Promise(function(r){ resolvePass = r; });
-  window.eduSetTeamPass = function(p){ resolvePass(p || PASSCODE); };
+  // Sign-in is checked INSTANTLY against the passcode this device last saw
+  // (or the default). The live passcode from the Sheet arrives in the
+  // background; if it has changed, anyone signed in with the old one is
+  // signed out at that point. Nobody waits on the Sheet to get in.
   var lastKnown = null; try { lastKnown = window.localStorage.getItem('edu_trivia_live_pass'); } catch(e){}
-  setTimeout(function(){ resolvePass(lastKnown || PASSCODE); }, 15000);
+  var livePass = null, signedInWith = null, liveWaiters = [];
+  function currentPass(){ return livePass || lastKnown || PASSCODE; }
+  window.eduSetTeamPass = function(p){
+    if (!p) { liveWaiters.splice(0).forEach(function(f){ f(); }); return; }
+    livePass = p;
+    try { window.localStorage.setItem('edu_trivia_live_pass', p); } catch(e){}
+    liveWaiters.splice(0).forEach(function(f){ f(); });
+    if (signedInWith !== null && norm(signedInWith) !== norm(p)) {
+      try { window.localStorage.removeItem(KEY); window.sessionStorage.removeItem(KEY); } catch(e){}
+      window.location.reload();
+    }
+  };
+  function waitForLive(ms){
+    return new Promise(function(res){
+      if (livePass) return res();
+      liveWaiters.push(res);
+      setTimeout(res, ms);
+    });
+  }
 
   // Sign out: forget this device and show the login screen again
   window.eduSignOut = function(){
@@ -189,12 +208,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
 
   // Already signed in on this device (and the passcode hasn't changed)?
   var saved = read(window.localStorage) || read(window.sessionStorage);
-  var panel = gate.querySelector('.eg-panel');
+  if (saved && norm(saved) === norm(currentPass())) { signedInWith = saved; unlock(); return; }
   if (saved) {
-    panel.style.visibility = 'hidden';
-    passReady.then(function(p){
-      if (norm(saved) === norm(p)) { if (gate.parentNode) unlock(); }
-      else { panel.style.visibility = ''; }
+    var panel0 = gate.querySelector('.eg-panel');
+    panel0.style.visibility = 'hidden';
+    waitForLive(20000).then(function(){
+      if (norm(saved) === norm(currentPass())) { signedInWith = saved; if (gate.parentNode) unlock(); }
+      else { panel0.style.visibility = ''; }
     });
   }
 
@@ -220,17 +240,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;ba
     e.preventDefault();
     var val = input.value;
     if (!norm(val)) { err.textContent = 'Enter the team passcode to continue.'; input.classList.add('eg-bad'); input.focus(); return; }
-    err.textContent = 'Checking…';
-    passReady.then(function(LIVE){
+    // Instant check. Only if it doesn't match AND the Sheet hasn't answered
+    // yet (e.g. the passcode was changed since this device last checked) do we wait.
+    var check = (norm(val) === norm(currentPass()) || livePass) ? Promise.resolve() : (err.textContent = 'Checking…', waitForLive(20000));
+    check.then(function(){
     err.textContent = '';
-    if (norm(val) !== norm(LIVE)) {
+    if (norm(val) !== norm(currentPass())) {
       err.textContent = "That passcode isn't right. Check with your team leader and try again.";
       input.classList.add('eg-bad'); input.select();
       gate.classList.remove('eg-shake'); void gate.offsetWidth; gate.classList.add('eg-shake');
       return;
     }
     var remember = document.getElementById('eg-remember').checked;
-    write(remember ? window.localStorage : window.sessionStorage, LIVE);
+    write(remember ? window.localStorage : window.sessionStorage, currentPass());
+    signedInWith = currentPass();
     unlock();
     });
   });
@@ -280,8 +303,8 @@ function lbConfigured(){ return !!LB_URL; }
 function fetchT(url, opts, ms){
   let timer;
   const timeout = new Promise((_, rej)=>{ timer = setTimeout(()=>rej(new Error('timed out')), ms||12000); });
-  // credentials:'omit' stops a signed-in Google account in the browser from breaking the request.
-  return Promise.race([fetch(url, Object.assign({credentials:'omit', redirect:'follow'}, opts||{})), timeout]).finally(()=>clearTimeout(timer));
+  // Plain fetch; saves send a text/plain body (no CORS preflight).
+  return Promise.race([fetch(url, opts||{}), timeout]).finally(()=>clearTimeout(timer));
 }
 async function lbFetch(){
   if(!lbConfigured()) return {entries:[]};
@@ -291,7 +314,7 @@ async function lbFetch(){
       if(!res.ok) throw new Error('fetch failed: '+res.status);
       const data = await res.json();
       if(!Array.isArray(data.entries)) throw new Error('no entries');
-      return {entries: data.entries, teamPass: data.teamPass||''};
+      return {entries: data.entries, teamPass: data.teamPass||'', mgrHash: data.mgrHash||''};
     }catch(e){
       if(attempt<2) await new Promise(r=>setTimeout(r, 800*(attempt+1)));
       else console.warn('Leaderboard could not be loaded just now', e);
@@ -304,22 +327,52 @@ function newId(){
   return Date.now().toString(36)+Math.random().toString(36).slice(2,10);
 }
 // POST as plain text so the browser sends a simple request (no CORS preflight).
+async function sha16(s){
+  try{
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(s)));
+    return Array.from(new Uint8Array(b)).slice(0,8).map(x=>x.toString(16).padStart(2,'0')).join('');
+  }catch(e){ return ''; }
+}
+// After a change, read the Sheet back and check the change really happened.
+// Used when the Sheet did the work but its reply never reached the browser.
+async function verifyChange(payload){
+  const d = await lbFetch();
+  if(!d) return null;
+  const E = d.entries;
+  switch(payload.action){
+    case 'add': { const ids=(payload.entries||[]).map(e=>e.id); return ids.every(id=>E.some(e=>e.id===id)) ? {ok:true} : null; }
+    case 'removeName': { const k=String(payload.name||'').toLowerCase(); return E.some(e=>String(e.name).toLowerCase()===k) ? null : {ok:true}; }
+    case 'clear': {
+      const left = payload.period==='all' ? E : payload.period==='Week' ? E.filter(e=>inCurrentWeek(e.date)) : E.filter(e=>inCurrentMonth(e.date));
+      return left.length ? null : {ok:true};
+    }
+    case 'setTeamPass': return d.teamPass===String(payload.value).trim() ? {ok:true} : null;
+    case 'setMgrPass': { const h=await sha16(String(payload.value).trim()); return (h && d.mgrHash===h) ? {ok:true} : null; }
+    case 'checkMgr': {
+      const h=await sha16(payload.pass);
+      if(!d.mgrHash || !h) return null;
+      return d.mgrHash===h ? {ok:true, mgrPass:payload.pass, teamPass:d.teamPass} : {ok:false, error:'bad pass'};
+    }
+  }
+  return null;
+}
 async function lbPost(payload){
   if(!lbConfigured()) return {ok:false};
-  // Saves carry an id, so retrying is always safe (the Sheet ignores repeats).
-  const tries = 4;
+  // Every action is safe to repeat (saves carry an id; removes, clears and
+  // passcode changes give the same result twice), so retrying never doubles anything.
+  const tries = 3;
   for(let attempt=0; attempt<tries; attempt++){
     try{
-      const res = await fetchT(LB_URL, {method:'POST', body: JSON.stringify(payload)}, 45000);
+      const res = await fetchT(LB_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload)}, 25000);
       if(!res.ok) throw new Error('post failed: '+res.status);
       const data = await res.json();
-      if(data && data.error==='busy') throw new Error('busy');
-      // A save is safe to repeat (it carries an id), so keep going until it's confirmed.
-      if(payload.action==='add' && !(data && data.ok)) throw new Error('not confirmed');
-      return data;
+      if(data && (data.ok || data.error==='bad pass' || data.error==='too short')) return data;
+      throw new Error((data && data.error) || 'not confirmed');
     }catch(e){
-      if(attempt<tries-1) await new Promise(r=>setTimeout(r, 1000*(attempt+1) + Math.random()*1000));
-      else console.warn('Leaderboard request did not go through', e);
+      console.warn('Sheet reply not received, checking the Sheet directly', e);
+      const v = await verifyChange(payload);
+      if(v) return v;
+      if(attempt<tries-1) await new Promise(r=>setTimeout(r, 1500*(attempt+1)));
     }
   }
   return {ok:false};
@@ -396,7 +449,12 @@ function openManagerTools(){ S.lbMgrOpen=true; S.lbMgrAuthed=false; S.lbMgrPassI
 function closeManagerTools(){ S.lbMgrOpen=false; render(); }
 async function tryManagerAuth(){
   S.lbMgrMsg='Checking…'; render();
-  const r = await lbPost({action:'checkMgr', pass:S.lbMgrPassInput});
+  let r = null;
+  const h = (S.lbData && S.lbData.mgrHash) ? await sha16(S.lbMgrPassInput) : '';
+  if(h){
+    r = (S.lbData.mgrHash===h) ? {ok:true, mgrPass:S.lbMgrPassInput, teamPass:S.lbData.teamPass} : {ok:false, error:'bad pass'};
+  }
+  if(!r) r = await lbPost({action:'checkMgr', pass:S.lbMgrPassInput});
   S.lbMgrAuthed = !!r.ok;
   if(r.ok){ S.mgrAuthPass=S.lbMgrPassInput; S.mgrPass=r.mgrPass; S.teamPass=r.teamPass||S.teamPass; S.lbMgrMsg=''; }
   else S.lbMgrMsg = r.error==='bad pass' ? 'Incorrect passcode.' : 'Could not check the passcode. Try again.';
